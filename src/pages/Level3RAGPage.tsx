@@ -168,33 +168,39 @@ export function Level3RAGPage() {
           <div className="panel">
             <h2>{t('levels.rag.pipelineLabel')}</h2>
             <div className="pipeline">
-              <PipelineNode label="Documents" active />
+              <PipelineNode label={t('levels.rag.pipeline.documents')} active />
               <Connection />
               <PipelineNode
-                label="Chunking"
+                label={t('levels.rag.pipeline.chunking')}
                 active
-                detail={`size ${state.config.chunkSize}`}
+                detail={`tamaño ${state.config.chunkSize}`}
               />
               <Connection />
-              <PipelineNode label="Embeddings" active />
+              <PipelineNode label={t('levels.rag.pipeline.embeddings')} active />
               <Connection />
               <PipelineNode
-                label="Vector Search"
+                label={t('levels.rag.pipeline.vectorSearch')}
                 active={Boolean(run)}
                 detail={`topK ${state.config.topK} · thr ${state.config.threshold.toFixed(2)}`}
               />
               <Connection />
               <PipelineNode
-                label="Retrieved Context"
+                label={t('levels.rag.pipeline.retrievedContext')}
                 active={Boolean(run?.contextChunkIds.length)}
                 detail={
                   run ? `${run.contextChunkIds.length} chunks` : undefined
                 }
               />
               <Connection />
-              <PipelineNode label="LLM" active={Boolean(run)} />
+              <PipelineNode
+                label={t('levels.rag.pipeline.llm')}
+                active={Boolean(run)}
+              />
               <Connection />
-              <PipelineNode label="Answer" active={Boolean(run)} />
+              <PipelineNode
+                label={t('levels.rag.pipeline.answer')}
+                active={Boolean(run)}
+              />
             </div>
           </div>
 

@@ -1,9 +1,8 @@
 import { useEffect, useReducer, useRef } from 'react'
-import { LLM_TARGET_SEQUENCE } from '@/data/llm'
+import { LLM_STEPS, LLM_TARGET_SEQUENCE } from '@/data/llm'
 import {
   createInitialLlmState,
   evaluateLlm,
-  getBuiltSequence,
   getCurrentStep,
   reduceLlmState,
 } from '@/domain/levels/llm/evaluate'
@@ -32,28 +31,40 @@ export function Level1LLMPage() {
   useEffect(() => {
     if (!state.completed) return
     const evaluation = evaluateLlm(state)
-    const elapsedMs = Math.round(
-      performance.now() - (startedAtRef.current ?? performance.now()),
-    )
     completeLevel('llm', {
       attempts: state.attempts,
-      elapsedMs,
+      elapsedMs: Math.round(
+        performance.now() - (startedAtRef.current ?? performance.now()),
+      ),
       score: evaluation.metrics?.score,
     })
   }, [state.completed, state.attempts, completeLevel, state])
 
   const step = getCurrentStep(state)
   const evaluation = evaluateLlm(state)
-  const sequence = state.completed
-    ? LLM_TARGET_SEQUENCE
-    : getBuiltSequence(state)
+  const revealing = state.phase === 'reveal' && !state.completed
+  const isLastReveal =
+    revealing &&
+    state.lastCorrect === true &&
+    state.stepIndex >= LLM_STEPS.length - 1
+
+  let displayText = ''
+  if (state.completed) {
+    displayText = LLM_TARGET_SEQUENCE
+  } else if (revealing && state.lastCorrect && step) {
+    displayText = `${step.context} ${state.chosenTokens[state.chosenTokens.length - 1] ?? ''}`.trim()
+  } else {
+    displayText = step?.context ?? ''
+  }
 
   const tone =
     evaluation.status === 'success'
       ? 'success'
       : evaluation.status === 'failed'
         ? 'error'
-        : 'hint'
+        : revealing && state.lastCorrect
+          ? 'success'
+          : 'hint'
 
   return (
     <LevelLayout
@@ -66,42 +77,98 @@ export function Level1LLMPage() {
         dispatch({ type: 'RESET' })
       }}
     >
+      <div className="row" style={{ marginBottom: '0.75rem' }}>
+        <span className="badge badge--ok">
+          {t('levels.llm.scoreLabel')}: {state.score}
+        </span>
+        <span className="badge">
+          {t('levels.llm.streakLabel')}: {state.streak}
+        </span>
+      </div>
+
       <ChallengePanel>
         <div className="panel stack">
           <h2>{t('levels.llm.contextLabel')}</h2>
           <div className="context-box" aria-live="polite">
-            {step?.context ?? sequence}
+            {displayText}
+            {!state.completed && !(revealing && state.lastCorrect) ? (
+              <>
+                {' '}
+                <span
+                  className="token-slot"
+                  aria-label={t('levels.llm.nextTokenSlot')}
+                >
+                  {t('levels.llm.nextTokenSlot')}
+                </span>
+              </>
+            ) : null}
           </div>
 
           {!state.completed && step ? (
             <>
               <h3>{t('levels.llm.optionsLabel')}</h3>
-              <p className="note">{t('levels.llm.pickHint')}</p>
+              <p className="note">
+                {revealing
+                  ? t('levels.llm.revealHint')
+                  : t('levels.llm.pickHint')}
+              </p>
               <div className="stack">
                 {step.options.map((option) => {
                   const selected = state.lastChoiceId === option.id
+                  const isTop = option.id === step.correctOptionId
                   return (
-                    <div key={option.id} className="row">
+                    <div
+                      key={option.id}
+                      className={`row token-row ${revealing && isTop ? 'token-row--top' : ''}`}
+                    >
                       <Token
                         text={option.text}
                         selected={selected}
-                        correct={selected ? state.lastCorrect : null}
+                        correct={
+                          revealing
+                            ? selected
+                              ? state.lastCorrect
+                              : isTop
+                                ? true
+                                : null
+                            : null
+                        }
+                        disabled={revealing && state.lastCorrect === true}
                         onClick={() =>
-                          dispatch({ type: 'SELECT_TOKEN', optionId: option.id })
+                          dispatch({
+                            type: 'SELECT_TOKEN',
+                            optionId: option.id,
+                          })
                         }
                       />
-                      <ProbabilityBar value={option.probability} />
+                      {revealing ? (
+                        <ProbabilityBar
+                          value={option.probability}
+                          label={`${Math.round(option.probability * 100)}%`}
+                        />
+                      ) : (
+                        <span className="mono muted token-hidden-prob">??%</span>
+                      )}
                     </div>
                   )
                 })}
               </div>
+
+              {revealing ? (
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => dispatch({ type: 'CONTINUE' })}
+                >
+                  {state.lastCorrect === false
+                    ? t('levels.llm.retry')
+                    : isLastReveal
+                      ? t('levels.llm.finish')
+                      : t('levels.llm.continue')}
+                </button>
+              ) : null}
             </>
           ) : null}
-
-          <div>
-            <h3>{t('levels.llm.sequenceLabel')}</h3>
-            <p className="mono">{sequence}</p>
-          </div>
         </div>
 
         <div className="panel stack">

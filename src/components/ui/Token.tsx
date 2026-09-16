@@ -16,7 +16,7 @@ export function Token({
   children,
 }: TokenProps) {
   const stateClass =
-    selected && correct === true
+    correct === true
       ? 'is-correct'
       : selected && correct === false
         ? 'is-wrong'

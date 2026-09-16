@@ -4,13 +4,19 @@ Laboratorio interactivo para aprender cómo funcionan los sistemas modernos de I
 
 > **Construí. Rompé. Entendé.**
 
-## MVP
+## Arco del MVP
 
-Tres niveles jugables en el navegador (sin backend ni APIs reales):
+**LLM → Embeddings → RAG**
 
-1. **LLM** — next-token prediction
-2. **Embeddings** — similitud semántica en un espacio 2D pedagógico
-3. **RAG** — recuperar contexto y responder con documentos
+> Generar → Representar → Recuperar + Generar
+
+1. **LLM** — predicí el próximo token a ciegas; las probabilidades se revelan después
+2. **Embeddings** — elegí vecinos semánticos sin scores; mapa y similitud al comprobar
+3. **RAG** — repará un pipeline mal configurado hasta recuperar el contexto correcto
+
+Todo corre en el navegador: simulaciones deterministas, sin APIs reales ni backend.
+
+**Intentos** = hipótesis que no cerraron (fallar es parte del juego).
 
 ## Stack
 

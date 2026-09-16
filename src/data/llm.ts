@@ -1,65 +1,65 @@
 import type { LlmStep } from '@/domain/levels/llm/types'
 
-/** Deterministic next-token steps — no randomness */
+/** Pasos deterministas — la opción correcta no siempre es la primera */
 export const LLM_STEPS: LlmStep[] = [
   {
     id: 'step-1',
-    context: 'The cat is sitting on the',
+    context: 'El gato está sentado sobre la',
     options: [
-      { id: 'mat', text: 'mat', probability: 0.62 },
-      { id: 'roof', text: 'roof', probability: 0.18 },
-      { id: 'table', text: 'table', probability: 0.14 },
-      { id: 'moon', text: 'moon', probability: 0.06 },
+      { id: 'techo', text: 'techo', probability: 0.18 },
+      { id: 'alfombra', text: 'alfombra', probability: 0.62 },
+      { id: 'luna', text: 'luna', probability: 0.06 },
+      { id: 'mesa', text: 'mesa', probability: 0.14 },
     ],
-    correctOptionId: 'mat',
+    correctOptionId: 'alfombra',
   },
   {
     id: 'step-2',
-    context: 'The cat is sitting on the mat',
+    context: 'El gato está sentado sobre la alfombra',
     options: [
-      { id: 'because', text: 'because', probability: 0.41 },
+      { id: 'volando', text: 'volando', probability: 0.09 },
       { id: 'period', text: '.', probability: 0.33 },
-      { id: 'and', text: 'and', probability: 0.17 },
-      { id: 'flying', text: 'flying', probability: 0.09 },
+      { id: 'porque', text: 'porque', probability: 0.41 },
+      { id: 'y', text: 'y', probability: 0.17 },
     ],
-    correctOptionId: 'because',
+    correctOptionId: 'porque',
   },
   {
     id: 'step-3',
-    context: 'The cat is sitting on the mat because',
+    context: 'El gato está sentado sobre la alfombra porque',
     options: [
-      { id: 'it', text: 'it', probability: 0.55 },
-      { id: 'quantum', text: 'quantum', probability: 0.08 },
       { id: 'pizza', text: 'pizza', probability: 0.12 },
-      { id: 'the', text: 'the', probability: 0.25 },
+      { id: 'el', text: 'el', probability: 0.25 },
+      { id: 'quantum', text: 'quantum', probability: 0.08 },
+      { id: 'esta', text: 'está', probability: 0.55 },
     ],
-    correctOptionId: 'it',
+    correctOptionId: 'esta',
   },
   {
     id: 'step-4',
-    context: 'The cat is sitting on the mat because it',
+    context: 'El gato está sentado sobre la alfombra porque está',
     options: [
-      { id: 'is', text: 'is', probability: 0.48 },
-      { id: 'exploded', text: 'exploded', probability: 0.05 },
-      { id: 'wrote', text: 'wrote', probability: 0.11 },
-      { id: 'was', text: 'was', probability: 0.36 },
+      { id: 'era', text: 'era', probability: 0.36 },
+      { id: 'explotado', text: 'explotado', probability: 0.05 },
+      { id: 'muy', text: 'muy', probability: 0.48 },
+      { id: 'escribio', text: 'escribió', probability: 0.11 },
     ],
-    correctOptionId: 'is',
+    correctOptionId: 'muy',
   },
   {
     id: 'step-5',
-    context: 'The cat is sitting on the mat because it is',
+    context: 'El gato está sentado sobre la alfombra porque está muy',
     options: [
-      { id: 'warm', text: 'warm', probability: 0.44 },
-      { id: 'a', text: 'a', probability: 0.28 },
-      { id: 'debugging', text: 'debugging', probability: 0.09 },
       { id: 'invisible', text: 'invisible', probability: 0.19 },
+      { id: 'caliente', text: 'caliente', probability: 0.44 },
+      { id: 'un', text: 'un', probability: 0.28 },
+      { id: 'debuggeando', text: 'debuggeando', probability: 0.09 },
     ],
-    correctOptionId: 'warm',
+    correctOptionId: 'caliente',
   },
 ]
 
 export const LLM_TARGET_SEQUENCE =
-  'The cat is sitting on the mat because it is warm'
+  'El gato está sentado sobre la alfombra porque está muy caliente'
 
 export const LLM_OBJECTIVE_KEY = 'levels.llm.objective'

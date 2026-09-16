@@ -2,8 +2,9 @@
 
 ## 0.1.0
 
-- MVP inicial de AI Forge (Home + Level 1 LLM, Level 2 Embeddings, Level 3 RAG)
-- Progreso local con localStorage y desbloqueo secuencial
-- Simulaciones deterministas sin APIs reales
-- Tests de dominio (evaluación, similitud, retrieval, progreso)
-- Fix de tsconfig: migración de `baseUrl` deprecado a `paths` con prefijo explícito
+- MVP inicial: Nivel 1 LLM, Nivel 2 Embeddings, Nivel 3 RAG
+- Mecánica a ciegas → revelar (N1/N2); configurar → ejecutar (N3)
+- Intentos unificados = hipótesis que no cerraron
+- N2: mapa vectorial oculto hasta comprobar
+- Progreso local, simulaciones deterministas, tests de dominio
+- UI/contenido en español (términos técnicos sin traducir)

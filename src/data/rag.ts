@@ -2,95 +2,95 @@ import type { ChunkSize, RagChunk, RagDocument } from '@/domain/levels/rag/types
 
 export const RAG_COMPANY = 'NovaForge Labs'
 
-export const RAG_QUESTION = "What is the company's refund policy?"
+export const RAG_QUESTION = '¿Cuál es la política de reembolsos de la empresa?'
 
 export const RAG_DOCUMENTS: RagDocument[] = [
   {
     id: 'doc-about',
-    title: 'About NovaForge Labs',
-    body: 'NovaForge Labs builds experimental AI tools for developers. Founded in 2021, the team focuses on interactive learning systems and simulation engines for modern AI architectures.',
+    title: 'Sobre NovaForge Labs',
+    body: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo y motores de simulación para arquitecturas modernas de IA.',
   },
   {
     id: 'doc-shipping',
-    title: 'Shipping Policy',
-    body: 'Digital products are delivered instantly by email. Physical merch ships within 5 business days. International shipping may take up to 20 days depending on customs.',
+    title: 'Política de envíos',
+    body: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles. Los envíos internacionales pueden demorar hasta 20 días según aduana.',
   },
   {
     id: 'doc-refund',
-    title: 'Refund Policy',
-    body: 'NovaForge Labs offers a full refund within 30 days of purchase if the product has not been heavily used. Refund requests must be sent to billing@novaforge.example with the order ID. Partial refunds are not available after day 30.',
+    title: 'Política de reembolsos',
+    body: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@novaforge.example con el ID del pedido. No hay reembolsos parciales después del día 30.',
   },
   {
     id: 'doc-support',
-    title: 'Support FAQ',
-    body: 'For technical issues open a ticket in the Forge Console. Response time is usually under 24 hours on weekdays. Password resets are handled automatically from the login screen.',
+    title: 'FAQ de soporte',
+    body: 'Para problemas técnicos abrí un ticket en la Forge Console. El tiempo de respuesta suele ser menor a 24 horas en días hábiles. Los resets de contraseña se manejan automáticamente desde la pantalla de login.',
   },
   {
     id: 'doc-careers',
-    title: 'Careers',
-    body: 'We hire curious builders. Roles include simulation engineer, education designer, and developer advocate. Remote-friendly across most timezones.',
+    title: 'Empleos',
+    body: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate. Remoto-friendly en la mayoría de los husos horarios.',
   },
 ]
 
 /**
- * Chunk catalogs per chunk size.
- * Similarities are hand-tuned so retrieval behavior is deterministic and teachable.
+ * Catálogos de chunks por tamaño.
+ * Las similitudes están calibradas a mano para que el retrieval sea determinista y enseñable.
  */
 export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
   50: [
     {
       id: 'c50-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs builds experimental AI tools for developers.',
+      text: 'NovaForge Labs construye herramientas experimentales de IA para developers.',
       similarity: 0.22,
       relevant: false,
     },
     {
       id: 'c50-2',
       sourceDocId: 'doc-shipping',
-      text: 'Digital products are delivered instantly by email.',
+      text: 'Los productos digitales se entregan al instante por email.',
       similarity: 0.31,
       relevant: false,
     },
     {
       id: 'c50-3',
       sourceDocId: 'doc-refund',
-      text: 'NovaForge Labs offers a full refund within 30 days of purchase',
+      text: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra',
       similarity: 0.91,
       relevant: true,
     },
     {
       id: 'c50-4',
       sourceDocId: 'doc-refund',
-      text: 'if the product has not been heavily used.',
+      text: 'si el producto no fue muy usado.',
       similarity: 0.48,
       relevant: true,
     },
     {
       id: 'c50-5',
       sourceDocId: 'doc-refund',
-      text: 'Refund requests must be sent to billing@novaforge.example',
+      text: 'Los pedidos de reembolso deben enviarse a billing@novaforge.example',
       similarity: 0.72,
       relevant: true,
     },
     {
       id: 'c50-6',
       sourceDocId: 'doc-support',
-      text: 'For technical issues open a ticket in the Forge Console.',
+      text: 'Para problemas técnicos abrí un ticket en la Forge Console.',
       similarity: 0.27,
       relevant: false,
     },
     {
       id: 'c50-7',
       sourceDocId: 'doc-careers',
-      text: 'We hire curious builders across most timezones.',
+      text: 'Contratamos builders curiosos en la mayoría de los husos horarios.',
       similarity: 0.11,
       relevant: false,
     },
     {
       id: 'c50-8',
       sourceDocId: 'doc-shipping',
-      text: 'Physical merch ships within 5 business days.',
+      text: 'El merch físico se envía en 5 días hábiles.',
       similarity: 0.29,
       relevant: false,
     },
@@ -99,42 +99,42 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c100-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs builds experimental AI tools for developers. Founded in 2021, the team focuses on interactive learning systems.',
+      text: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo.',
       similarity: 0.24,
       relevant: false,
     },
     {
       id: 'c100-2',
       sourceDocId: 'doc-shipping',
-      text: 'Digital products are delivered instantly by email. Physical merch ships within 5 business days.',
+      text: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles.',
       similarity: 0.33,
       relevant: false,
     },
     {
       id: 'c100-3',
       sourceDocId: 'doc-refund',
-      text: 'NovaForge Labs offers a full refund within 30 days of purchase if the product has not been heavily used. Refund requests must be sent to billing@novaforge.example with the order ID.',
+      text: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@novaforge.example con el ID del pedido.',
       similarity: 0.94,
       relevant: true,
     },
     {
       id: 'c100-4',
       sourceDocId: 'doc-refund',
-      text: 'Partial refunds are not available after day 30.',
+      text: 'No hay reembolsos parciales después del día 30.',
       similarity: 0.61,
       relevant: true,
     },
     {
       id: 'c100-5',
       sourceDocId: 'doc-support',
-      text: 'For technical issues open a ticket in the Forge Console. Response time is usually under 24 hours on weekdays.',
+      text: 'Para problemas técnicos abrí un ticket en la Forge Console. El tiempo de respuesta suele ser menor a 24 horas en días hábiles.',
       similarity: 0.28,
       relevant: false,
     },
     {
       id: 'c100-6',
       sourceDocId: 'doc-careers',
-      text: 'We hire curious builders. Roles include simulation engineer, education designer, and developer advocate.',
+      text: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate.',
       similarity: 0.14,
       relevant: false,
     },
@@ -143,35 +143,35 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c200-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs builds experimental AI tools for developers. Founded in 2021, the team focuses on interactive learning systems and simulation engines for modern AI architectures.',
+      text: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo y motores de simulación para arquitecturas modernas de IA.',
       similarity: 0.26,
       relevant: false,
     },
     {
       id: 'c200-2',
       sourceDocId: 'doc-shipping',
-      text: 'Digital products are delivered instantly by email. Physical merch ships within 5 business days. International shipping may take up to 20 days depending on customs.',
+      text: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles. Los envíos internacionales pueden demorar hasta 20 días según aduana.',
       similarity: 0.35,
       relevant: false,
     },
     {
       id: 'c200-3',
       sourceDocId: 'doc-refund',
-      text: 'NovaForge Labs offers a full refund within 30 days of purchase if the product has not been heavily used. Refund requests must be sent to billing@novaforge.example with the order ID. Partial refunds are not available after day 30.',
+      text: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@novaforge.example con el ID del pedido. No hay reembolsos parciales después del día 30.',
       similarity: 0.96,
       relevant: true,
     },
     {
       id: 'c200-4',
       sourceDocId: 'doc-support',
-      text: 'For technical issues open a ticket in the Forge Console. Response time is usually under 24 hours on weekdays. Password resets are handled automatically from the login screen.',
+      text: 'Para problemas técnicos abrí un ticket en la Forge Console. El tiempo de respuesta suele ser menor a 24 horas en días hábiles. Los resets de contraseña se manejan automáticamente desde la pantalla de login.',
       similarity: 0.3,
       relevant: false,
     },
     {
       id: 'c200-5',
       sourceDocId: 'doc-careers',
-      text: 'We hire curious builders. Roles include simulation engineer, education designer, and developer advocate. Remote-friendly across most timezones.',
+      text: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate. Remoto-friendly en la mayoría de los husos horarios.',
       similarity: 0.15,
       relevant: false,
     },
@@ -180,28 +180,28 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c400-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs builds experimental AI tools for developers. Founded in 2021, the team focuses on interactive learning systems and simulation engines for modern AI architectures. Extra corporate boilerplate fills this oversized chunk and dilutes retrieval quality.',
+      text: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo y motores de simulación. Este chunk sobredimensionado diluye la calidad del retrieval con texto corporativo extra.',
       similarity: 0.41,
       relevant: false,
     },
     {
       id: 'c400-2',
       sourceDocId: 'doc-shipping',
-      text: 'Digital products are delivered instantly by email. Physical merch ships within 5 business days. International shipping may take up to 20 days depending on customs. Warehouse notes and courier codes also live here.',
+      text: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles. Los envíos internacionales pueden demorar hasta 20 días. Notas de depósito y códigos de courier también viven acá.',
       similarity: 0.44,
       relevant: false,
     },
     {
       id: 'c400-3',
       sourceDocId: 'doc-mixed',
-      text: 'Support FAQ mixed with refund hints: open tickets in Forge Console. Somewhere inside: full refund within 30 days… but buried under careers copy, shipping noise, and password reset instructions that confuse the model.',
+      text: 'FAQ de soporte mezclado con pistas de reembolso: abrí tickets en Forge Console. En algún lado: reembolso completo dentro de los 30 días… pero enterrado bajo texto de empleos, ruido de envíos e instrucciones de reset que confunden al modelo.',
       similarity: 0.58,
       relevant: false,
     },
     {
       id: 'c400-4',
       sourceDocId: 'doc-careers',
-      text: 'We hire curious builders. Roles include simulation engineer, education designer, and developer advocate. Remote-friendly across most timezones. Benefits overview and culture deck excerpts.',
+      text: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate. Remoto-friendly. Resumen de beneficios y extractos de culture deck.',
       similarity: 0.21,
       relevant: false,
     },
@@ -211,7 +211,7 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
 export const RAG_CHUNK_SIZE_OPTIONS: ChunkSize[] = [50, 100, 200, 400]
 export const RAG_TOP_K_OPTIONS = [1, 2, 3, 5] as const
 
-/** Broken defaults — player must fix them */
+/** Defaults rotos — el jugador debe arreglarlos */
 export const RAG_INITIAL_CONFIG = {
   chunkSize: 400 as ChunkSize,
   topK: 1 as const,

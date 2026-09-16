@@ -54,7 +54,9 @@ export function classifyRagAnswer(
   // Success recipe: chunk size 100 or 200, enough relevant context, limited noise
   const goodChunkSize: ChunkSize[] = [100, 200]
   const hasCoreRefund = relevantIncluded.some((r) =>
-    r.chunk.text.toLowerCase().includes('full refund within 30 days'),
+    r.chunk.text
+      .toLowerCase()
+      .includes('reembolso completo dentro de los 30 días'),
   )
   const enoughRelevant = relevantIncluded.length >= 1 && hasCoreRefund
   const tooNoisy = irrelevantIncluded.length >= 2

@@ -1,9 +1,14 @@
 import { useEffect, useReducer, useRef } from 'react'
-import { EMBEDDING_DOCUMENTS, EMBEDDING_QUERY } from '@/data/embeddings'
+import {
+  EMBEDDING_DOCUMENTS,
+  EMBEDDING_QUERY,
+  EMBEDDING_TOP_K,
+} from '@/data/embeddings'
 import {
   createInitialEmbeddingsState,
   evaluateEmbeddings,
-  getDocumentScores,
+  getPlayOrderScores,
+  getTargetDocIds,
   reduceEmbeddingsState,
 } from '@/domain/levels/embeddings/evaluate'
 import { useProgress } from '@/context/ProgressContext'
@@ -22,7 +27,9 @@ export function Level2EmbeddingsPage() {
   const [state, dispatch] = useReducer(reduceEmbeddingsState, undefined, () =>
     createInitialEmbeddingsState(0),
   )
-  const scores = getDocumentScores()
+  const scores = getPlayOrderScores()
+  const targets = new Set(getTargetDocIds())
+  const revealing = state.phase === 'reveal'
 
   useEffect(() => {
     if (startedAtRef.current == null) {
@@ -54,7 +61,7 @@ export function Level2EmbeddingsPage() {
     <LevelLayout
       kicker={t('levels.embeddings.title')}
       title={t('levels.embeddings.subtitle')}
-      objective={t('levels.embeddings.objective')}
+      objective={t('levels.embeddings.objective', { topK: EMBEDDING_TOP_K })}
       attempts={state.attempts}
       onReset={() => {
         startedAtRef.current = performance.now()
@@ -65,73 +72,127 @@ export function Level2EmbeddingsPage() {
         {t('common.simplification')}
       </p>
 
+      <div className="row" style={{ marginBottom: '0.75rem' }}>
+        <span className="badge badge--ok">
+          {t('levels.embeddings.scoreLabel')}: {state.score}
+        </span>
+        <span className="badge">
+          {t('levels.embeddings.selectedLabel')}: {state.selectedDocIds.length}/
+          {EMBEDDING_TOP_K}
+        </span>
+      </div>
+
       <ChallengePanel>
         <div className="panel stack">
-          <h2>{t('levels.embeddings.mapLabel')}</h2>
-          <div className="vector-map" role="img" aria-label={t('levels.embeddings.mapLabel')}>
-            <VectorPoint
-              x={EMBEDDING_QUERY.position.x}
-              y={EMBEDDING_QUERY.position.y}
-              label="query"
-              kind="query"
-            />
-            {EMBEDDING_DOCUMENTS.map((doc) => {
-              const score = scores.find((s) => s.doc.id === doc.id)
-              const near = (score?.similarity ?? 0) >= 0.85
-              return (
-                <VectorPoint
-                  key={doc.id}
-                  x={doc.position.x}
-                  y={doc.position.y}
-                  label={doc.id.replace('doc-', '')}
-                  selected={state.selectedDocIds.includes(doc.id)}
-                  near={near}
-                  disabled={state.completed}
-                  onClick={() => dispatch({ type: 'TOGGLE_DOC', docId: doc.id })}
-                />
-              )
-            })}
-          </div>
-
           <div>
-            <h3>{t('levels.embeddings.queryLabel')}</h3>
+            <h2>{t('levels.embeddings.queryLabel')}</h2>
             <div className="context-box">{EMBEDDING_QUERY.text}</div>
           </div>
+
+          <h2>{t('levels.embeddings.mapLabel')}</h2>
+          {revealing ? (
+            <div
+              className="vector-map map-reveal"
+              role="img"
+              aria-label={t('levels.embeddings.mapLabel')}
+            >
+              <VectorPoint
+                x={EMBEDDING_QUERY.position.x}
+                y={EMBEDDING_QUERY.position.y}
+                label={t('levels.embeddings.queryLabel')}
+                kind="query"
+              />
+              {EMBEDDING_DOCUMENTS.map((doc) => {
+                const selected = state.selectedDocIds.includes(doc.id)
+                const isTarget = targets.has(doc.id)
+                return (
+                  <VectorPoint
+                    key={doc.id}
+                    x={doc.position.x}
+                    y={doc.position.y}
+                    label={doc.label}
+                    selected={selected}
+                    near={isTarget}
+                    disabled
+                  />
+                )
+              })}
+            </div>
+          ) : (
+            <div className="map-placeholder" role="status">
+              <p className="mono muted" style={{ margin: 0 }}>
+                {t('levels.embeddings.mapHidden')}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="panel stack">
           <h2>{t('levels.embeddings.docsLabel')}</h2>
-          {scores.map(({ doc, similarity }) => (
-            <DocumentCard
-              key={doc.id}
-              title={doc.text}
-              selected={state.selectedDocIds.includes(doc.id)}
-              onClick={
-                state.completed
-                  ? undefined
-                  : () => dispatch({ type: 'TOGGLE_DOC', docId: doc.id })
-              }
-              meta={<SimilarityScore value={similarity} digits={3} />}
-            />
-          ))}
+          <p className="note">
+            {revealing
+              ? t('levels.embeddings.revealHint')
+              : t('levels.embeddings.pickHint')}
+          </p>
+
+          {scores.map(({ doc, similarity }) => {
+            const selected = state.selectedDocIds.includes(doc.id)
+            const isTarget = targets.has(doc.id)
+            return (
+              <DocumentCard
+                key={doc.id}
+                title={`${doc.label}. ${doc.text}`}
+                selected={selected}
+                onClick={
+                  state.completed || revealing
+                    ? undefined
+                    : () => dispatch({ type: 'TOGGLE_DOC', docId: doc.id })
+                }
+                meta={
+                  revealing ? (
+                    <span className="row" style={{ gap: '0.5rem' }}>
+                      <SimilarityScore value={similarity} digits={3} />
+                      <span className="mono muted">
+                        {isTarget ? t('levels.embeddings.topMark') : '·'}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="mono muted">??</span>
+                  )
+                }
+              />
+            )
+          })}
 
           <div className="row">
-            <button
-              type="button"
-              className="btn btn--primary"
-              disabled={state.completed || state.selectedDocIds.length === 0}
-              onClick={() => dispatch({ type: 'SUBMIT' })}
-            >
-              {t('common.submit')}
-            </button>
-            <span className="mono muted">
-              {t('levels.embeddings.selectedLabel')}: {state.selectedDocIds.length}
-            </span>
+            {!revealing ? (
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={
+                  state.completed ||
+                  state.selectedDocIds.length !== EMBEDDING_TOP_K
+                }
+                onClick={() => dispatch({ type: 'SUBMIT' })}
+              >
+                {state.selectedDocIds.length !== EMBEDDING_TOP_K
+                  ? t('levels.embeddings.needExact', { topK: EMBEDDING_TOP_K })
+                  : t('common.submit')}
+              </button>
+            ) : !state.completed ? (
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => dispatch({ type: 'RETRY' })}
+              >
+                {t('levels.embeddings.retry')}
+              </button>
+            ) : null}
           </div>
 
           <FeedbackPanel
-            title={t(evaluation.titleKey)}
-            message={t(evaluation.messageKey)}
+            title={t(evaluation.titleKey, evaluation.messageParams)}
+            message={t(evaluation.messageKey, evaluation.messageParams)}
             tone={tone}
           />
 

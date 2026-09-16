@@ -43,7 +43,7 @@ export function reduceRagState(
       const lastRun = runRagPipeline(state.config)
       return {
         ...state,
-        attempts: state.attempts + 1,
+        attempts: lastRun.success ? state.attempts : state.attempts + 1,
         lastRun,
         completed: lastRun.success,
       }
@@ -67,7 +67,7 @@ export function evaluateRag(state: RagChallengeState): EvaluationResult {
       metrics: {
         attempts: state.attempts,
         elapsedMs: 0,
-        score: Math.max(100 - (state.attempts - 1) * 10, 35),
+        score: Math.max(100 - state.attempts * 10, 35),
         tokensUsed: state.lastRun.contextChunkIds.length * state.config.chunkSize,
         simulatedCost: state.lastRun.contextChunkIds.length * 0.002,
         configSnapshot: { ...state.config },

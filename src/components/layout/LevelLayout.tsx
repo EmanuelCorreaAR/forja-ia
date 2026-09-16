@@ -30,7 +30,11 @@ export function LevelLayout({
           </p>
         </div>
         <div className="row">
-          <span className="badge" aria-live="polite">
+          <span
+            className="badge"
+            aria-live="polite"
+            title={t('common.attemptsHint')}
+          >
             {t('common.attempts')}: {attempts}
           </span>
           <button type="button" className="btn btn--ghost" onClick={onReset}>
