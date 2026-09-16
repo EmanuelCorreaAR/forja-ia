@@ -49,21 +49,29 @@ export const es = {
       mission:
         'Elegí el próximo token a ciegas. Después mirás cómo el contexto mueve las probabilidades.',
       chaosMission:
-        'CHAOS MODE: conseguí la respuesta más absurda posible. Subí la temperatura y rompé la heladera de la realidad.',
+        'CHAOS MODE: 4 contextos absurdos. Elegí lo más raro en cada uno — no es el mismo loop.',
       contextLabel: 'Contexto',
       optionsLabel: '¿Qué sigue?',
       nextTokenSlot: '¿?',
       pickHint: 'Sin números. ¿Qué diría el modelo?',
-      revealHint: 'Así lo ve el modelo con la temperatura actual.',
+      revealHint:
+        'Barras = chance de cada token. Mové Temperatura: baja aplasta al favorito, alta abre lo raro.',
+      revealHintEarly:
+        'Así lo ve el modelo: las barras son la chance de cada token. Más adelante vas a poder jugar con la temperatura.',
       scoreLabel: 'Puntos',
       streakLabel: 'Racha',
       chaosScoreLabel: 'Caos',
       tempLabel: 'Temperatura',
-      tempLow: 'predecible',
+      tempLow: 'segura',
       tempHigh: 'loca',
+      tempHelp:
+        'Baja: el modelo se aferra al favorito. Alta: reparte chance a tokens raros. Mové el slider y mirá cómo cambian las barras.',
+      tempHelpBlind:
+        'Elegí un token: al revelar vas a poder mover la temperatura y ver cómo se aplastan o se abren las probabilidades.',
       continue: 'Siguiente ronda',
       retry: 'Intentar de nuevo',
       chaosAgain: 'Otro caos',
+      chaosNext: 'Siguiente caos',
       enterChaos: 'Entrar a CHAOS MODE',
       skipChaos: 'Terminar acá',
       finishChaos: 'Cerrar chaos y compartir',
@@ -84,9 +92,12 @@ export const es = {
           'Desbloqueaste temperatura y CHAOS MODE. ¿Querés romper el modelo un rato?',
         chaosTitle: 'CHAOS MODE',
         chaosMessage:
-          'Subí la temperatura y elegí lo más absurdo. Cada pick suma caos.',
+          'Caos {{current}}/{{total}}. Subí la temperatura y elegí lo más absurdo.',
         chaosHitTitle: 'Absurdo registrado',
-        chaosHitMessage: 'Caos acumulado: {{chaosScore}}. ¿Otra pasada o cerrás?',
+        chaosHitMessage:
+          'Caos {{current}}/{{total}} · acumulado {{chaosScore}}. Siguiente contexto distinto.',
+        chaosLastMessage:
+          'Último caos · acumulado {{chaosScore}}. Cerrá y compartí el score.',
         successTitle: 'Partida cerrada',
         successMessage:
           'Score {{score}} · racha {{bestStreak}} · caos {{chaosScore}}.',
@@ -145,7 +156,7 @@ export const es = {
       mission:
         'El bot ya respondió mal. Ajustá pedazo / cuántos / umbral hasta que entre la política real de reembolsos — y no la promo de 2019.',
       nightmareMission:
-        'RAG NIGHTMARE: chunk 400, topK 1, umbral alto y distractor fuerte. Tenés 60 segundos.',
+        'Desafío extra: el bot volvió a romperse peor, y el reloj corre. Objetivo: que responda bien el reembolso antes de que llegue a 0. Si se te acaba el tiempo, perdés esta ronda.',
       repairBadge: 'Reparar bot',
       nightmareBadge: 'NIGHTMARE',
       questionLabel: 'Pregunta del cliente',
@@ -187,7 +198,7 @@ export const es = {
       contextLabel: 'Contexto que ve el modelo',
       answerLabel: 'Respuesta del LLM',
       runCta: 'Probar esta configuración',
-      enterNightmare: 'Entrar a RAG NIGHTMARE (60s)',
+      enterNightmare: 'Desafío NIGHTMARE: ¿lo arreglás en 60s?',
       retryNightmare: 'Reintentar NIGHTMARE',
       scoreLabel: 'Puntos',
       tokensLabel: 'Tokens contexto',
@@ -195,6 +206,8 @@ export const es = {
       excluded: 'queda afuera',
       explanation:
         'RAG no reemplaza al LLM: primero busca pedazos relevantes y se los entrega como contexto. Si el contexto es malo (o es una promo vieja), el bot inventa con cara de seguro.',
+      nightmareExplanation:
+        'NIGHTMARE es la revancha contrarreloj: misma idea (arreglar el retrieval), pero empezás más roto y con 60s. Sirve para poner a prueba si entendiste los controles, no para “aprender algo nuevo”.',
       answers: {
         empty:
           'No encontré nada útil en el contexto. No puedo hablar de reembolsos.',
@@ -229,10 +242,13 @@ export const es = {
           'Entró el archivo de marketing. Sacá ruido o subí el umbral / bajá el top-K hasta que gane la política real.',
         timeoutTitle: 'Se acabó el tiempo',
         timeoutMessage:
-          'NIGHTMARE no perdona. Reintentá: pedazos medianos, top-K sensato, umbral que deje pasar el refund.',
+          'No llegaste a arreglar el bot a tiempo. El fin de NIGHTMARE era simple: respuesta correcta de reembolso antes del 0. Reintentá.',
         successTitle: '¡El bot dejó de inventar!',
         successMessage:
           'El pedazo de reembolsos entró al LLM y la respuesta es usable. Eso es RAG.',
+        nightmareSuccessTitle: 'NIGHTMARE superado',
+        nightmareSuccessMessage:
+          'Lo arreglaste contrarreloj. Mismo truco: contexto bueno → respuesta buena. Ahora sí podés flexear el score.',
       },
     },
     future: {

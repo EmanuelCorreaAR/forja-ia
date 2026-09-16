@@ -422,7 +422,11 @@ export function Level3RAGPage() {
               ) : null}
               <SuccessState
                 title={t('common.explanation')}
-                explanation={t('levels.rag.explanation')}
+                explanation={
+                  state.mode === 'nightmare'
+                    ? t('levels.rag.nightmareExplanation')
+                    : t('levels.rag.explanation')
+                }
               />
             </>
           ) : null}

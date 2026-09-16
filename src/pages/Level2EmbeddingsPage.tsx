@@ -136,12 +136,14 @@ export function Level2EmbeddingsPage() {
             <div className="context-box">{EMBEDDING_QUERY.text}</div>
           </div>
 
-          <h2>{t('levels.embeddings.mapLabel')}</h2>
-          <p className="note">
-            {revealing
-              ? t('levels.embeddings.mapRevealHint')
-              : t('levels.embeddings.mapBlindHint')}
-          </p>
+          <div className="section-heading">
+            <h2>{t('levels.embeddings.mapLabel')}</h2>
+            <p className="note">
+              {revealing
+                ? t('levels.embeddings.mapRevealHint')
+                : t('levels.embeddings.mapBlindHint')}
+            </p>
+          </div>
           <div
             className={`vector-map ${revealing ? 'map-reveal' : ''}`}
             role="img"
@@ -175,12 +177,14 @@ export function Level2EmbeddingsPage() {
         </div>
 
         <div className="panel stack">
-          <h2>{t('levels.embeddings.docsLabel')}</h2>
-          <p className="note">
-            {revealing
-              ? t('levels.embeddings.revealHint')
-              : t('levels.embeddings.pickHint')}
-          </p>
+          <div className="section-heading">
+            <h2>{t('levels.embeddings.docsLabel')}</h2>
+            <p className="note">
+              {revealing
+                ? t('levels.embeddings.revealHint')
+                : t('levels.embeddings.pickHint')}
+            </p>
+          </div>
 
           {scores.map(({ doc, similarity }) => {
             const selected = state.selectedDocIds.includes(doc.id)

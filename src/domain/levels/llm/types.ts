@@ -32,6 +32,7 @@ export type LlmChallengeState = {
   temperature: number
   chaosScore: number
   chaosPicks: string[]
+  chaosRoundIndex: number
   predictCompleted: boolean
   completed: boolean
   startedAt: number

@@ -4,7 +4,9 @@ import {
   createInitialLlmState,
   evaluateLlm,
   getActiveOptions,
+  getCurrentChaosRound,
   getCurrentStep,
+  isLastChaosRound,
   reduceLlmState,
 } from '@/domain/levels/llm/evaluate'
 import {
@@ -49,14 +51,18 @@ export function Level1LLMPage() {
   }, [state.completed, state.attempts, completeLevel, state])
 
   const step = getCurrentStep(state)
+  const chaosRound = getCurrentChaosRound(state)
   const options = getActiveOptions(state)
   const evaluation = evaluateLlm(state)
   const revealing = state.phase === 'reveal' && !state.completed
   const showTemp =
     state.predictCompleted || state.mode === 'chaos' || state.stepIndex >= 2
+  const lastChaos = state.mode === 'chaos' && isLastChaosRound(state)
 
   const contextText =
-    state.mode === 'chaos' ? LLM_CHAOS_CONTEXT : (step?.context ?? '')
+    state.mode === 'chaos'
+      ? (chaosRound?.context ?? LLM_CHAOS_CONTEXT)
+      : (step?.context ?? '')
 
   const elapsedMs = Math.round(
     performance.now() - (startedAtRef.current ?? performance.now()),
@@ -144,43 +150,54 @@ export function Level1LLMPage() {
           </div>
 
           {showTemp ? (
-            <ParameterControl
-              id="temperature"
-              label={t('levels.llm.tempLabel')}
-              valueLabel={state.temperature.toFixed(1)}
-            >
-              <div className="row" style={{ width: '100%' }}>
-                <span className="note">{t('levels.llm.tempLow')}</span>
-                <input
-                  id="temperature"
-                  type="range"
-                  min={0.1}
-                  max={1}
-                  step={0.1}
-                  value={state.temperature}
-                  disabled={state.completed}
-                  onChange={(e) =>
-                    dispatch({
-                      type: 'SET_TEMPERATURE',
-                      temperature: Number(e.target.value),
-                    })
-                  }
-                  style={{ flex: 1 }}
-                />
-                <span className="note">{t('levels.llm.tempHigh')}</span>
-              </div>
-            </ParameterControl>
+            <div className="stack" style={{ gap: '0.35rem' }}>
+              <ParameterControl
+                id="temperature"
+                label={t('levels.llm.tempLabel')}
+                valueLabel={state.temperature.toFixed(1)}
+              >
+                <div className="row" style={{ width: '100%' }}>
+                  <span className="note">{t('levels.llm.tempLow')}</span>
+                  <input
+                    id="temperature"
+                    type="range"
+                    min={0.1}
+                    max={1}
+                    step={0.1}
+                    value={state.temperature}
+                    disabled={state.completed}
+                    onChange={(e) =>
+                      dispatch({
+                        type: 'SET_TEMPERATURE',
+                        temperature: Number(e.target.value),
+                      })
+                    }
+                    style={{ flex: 1 }}
+                  />
+                  <span className="note">{t('levels.llm.tempHigh')}</span>
+                </div>
+              </ParameterControl>
+              <p className="note" style={{ margin: 0 }}>
+                {revealing || state.mode === 'chaos'
+                  ? t('levels.llm.tempHelp')
+                  : t('levels.llm.tempHelpBlind')}
+              </p>
+            </div>
           ) : null}
 
           {!state.completed &&
           !(state.predictCompleted && state.mode === 'predict') ? (
             <>
-              <h3>{t('levels.llm.optionsLabel')}</h3>
-              <p className="note">
-                {revealing
-                  ? t('levels.llm.revealHint')
-                  : t('levels.llm.pickHint')}
-              </p>
+              <div className="section-heading">
+                <h3>{t('levels.llm.optionsLabel')}</h3>
+                <p className="note">
+                  {revealing
+                    ? showTemp
+                      ? t('levels.llm.revealHint')
+                      : t('levels.llm.revealHintEarly')
+                    : t('levels.llm.pickHint')}
+                </p>
+              </div>
               <div className="stack">
                 {options.map((option) => {
                   const selected = state.lastChoiceId === option.id
@@ -207,11 +224,7 @@ export function Level1LLMPage() {
                                 : null
                             : null
                         }
-                        disabled={
-                          revealing &&
-                          state.mode === 'predict' &&
-                          state.lastCorrect === true
-                        }
+                        disabled={revealing}
                         onClick={() =>
                           dispatch({
                             type: 'SELECT_TOKEN',
@@ -234,17 +247,28 @@ export function Level1LLMPage() {
 
               {revealing ? (
                 <div className="row">
-                  <button
-                    type="button"
-                    className="btn btn--primary"
-                    onClick={() => dispatch({ type: 'CONTINUE' })}
-                  >
-                    {state.lastCorrect === false
-                      ? t('levels.llm.retry')
-                      : state.mode === 'chaos'
-                        ? t('levels.llm.chaosAgain')
-                        : t('levels.llm.continue')}
-                  </button>
+                  {state.mode === 'chaos' && lastChaos ? null : (
+                    <button
+                      type="button"
+                      className="btn btn--primary"
+                      onClick={() => dispatch({ type: 'CONTINUE' })}
+                    >
+                      {state.lastCorrect === false
+                        ? t('levels.llm.retry')
+                        : state.mode === 'chaos'
+                          ? t('levels.llm.chaosNext')
+                          : t('levels.llm.continue')}
+                    </button>
+                  )}
+                  {state.mode === 'chaos' ? (
+                    <button
+                      type="button"
+                      className={`btn ${lastChaos ? 'btn--primary' : ''}`}
+                      onClick={() => dispatch({ type: 'FINISH_CHAOS' })}
+                    >
+                      {t('levels.llm.finishChaos')}
+                    </button>
+                  ) : null}
                 </div>
               ) : null}
             </>
@@ -269,10 +293,10 @@ export function Level1LLMPage() {
             </div>
           ) : null}
 
-          {state.mode === 'chaos' && !state.completed ? (
+          {state.mode === 'chaos' && !state.completed && !revealing ? (
             <button
               type="button"
-              className="btn btn--primary"
+              className="btn"
               onClick={() => dispatch({ type: 'FINISH_CHAOS' })}
             >
               {t('levels.llm.finishChaos')}

@@ -51,15 +51,64 @@ export const LLM_ROUNDS: LlmStep[] = [
   },
 ]
 
-/** Tokens válidos en CHAOS (absurdo pero aún “jugable”) */
-export const LLM_CHAOS_OPTIONS = [
-  { id: 'queso', text: 'queso', logit: 1.2, absurdity: 0.2 },
-  { id: 'ovni', text: 'ovni', logit: 0.8, absurdity: 0.85 },
-  { id: 'dinosaurio', text: 'dinosaurio', logit: 0.7, absurdity: 0.9 },
-  { id: 'volcan', text: 'volcán', logit: 0.5, absurdity: 0.95 },
-  { id: 'meem', text: 'meme', logit: 0.9, absurdity: 0.75 },
-  { id: 'portal', text: 'portal', logit: 0.6, absurdity: 0.88 },
-] as const
+export type ChaosOption = {
+  id: string
+  text: string
+  logit: number
+  absurdity: number
+}
 
-export const LLM_CHAOS_CONTEXT =
-  'La IA abrió la heladera de la realidad y encontró un'
+export type ChaosRound = {
+  id: string
+  context: string
+  options: ChaosOption[]
+}
+
+/** Mini-arco CHAOS: cada pasada cambia el contexto (no es el mismo loop). */
+export const LLM_CHAOS_ROUNDS: ChaosRound[] = [
+  {
+    id: 'chaos-reality-fridge',
+    context: 'La IA abrió la heladera de la realidad y encontró un',
+    options: [
+      { id: 'queso', text: 'queso', logit: 1.4, absurdity: 0.15 },
+      { id: 'ovni', text: 'ovni', logit: 0.7, absurdity: 0.85 },
+      { id: 'portal', text: 'portal', logit: 0.9, absurdity: 0.88 },
+      { id: 'volcan', text: 'volcán', logit: 0.4, absurdity: 0.95 },
+    ],
+  },
+  {
+    id: 'chaos-ceo-prompt',
+    context: 'El CEO le pidió a la IA “sé creativa” y ella respondió con un',
+    options: [
+      { id: 'meme', text: 'meme', logit: 1.3, absurdity: 0.7 },
+      { id: 'dinosaurio', text: 'dinosaurio', logit: 0.5, absurdity: 0.92 },
+      { id: 'powerpoint', text: 'PowerPoint', logit: 1.6, absurdity: 0.25 },
+      { id: 'agujero', text: 'agujero negro', logit: 0.6, absurdity: 0.9 },
+    ],
+  },
+  {
+    id: 'chaos-autocomplete',
+    context: 'El autocompletado del universo escribió: “mañana voy a',
+    options: [
+      { id: 'trabajar', text: 'trabajar”', logit: 1.8, absurdity: 0.1 },
+      { id: 'implosionar', text: 'implosionar”', logit: 0.55, absurdity: 0.93 },
+      { id: 'bailar', text: 'bailar con un ovni”', logit: 0.7, absurdity: 0.86 },
+      { id: 'debuggear', text: 'debuggear el clima”', logit: 0.85, absurdity: 0.8 },
+    ],
+  },
+  {
+    id: 'chaos-final-boss',
+    context: 'Antes del credits, el modelo susurró el token prohibido:',
+    options: [
+      { id: 'fin', text: 'FIN', logit: 1.5, absurdity: 0.2 },
+      { id: '42', text: '42', logit: 1.0, absurdity: 0.75 },
+      { id: 'glitch', text: 'glitch', logit: 0.8, absurdity: 0.88 },
+      { id: 'queso-final', text: 'queso cósmico', logit: 0.45, absurdity: 0.97 },
+    ],
+  },
+]
+
+/** @deprecated use LLM_CHAOS_ROUNDS — kept for any leftover imports */
+export const LLM_CHAOS_OPTIONS = LLM_CHAOS_ROUNDS[0]!.options
+
+export const LLM_CHAOS_CONTEXT = LLM_CHAOS_ROUNDS[0]!.context

@@ -40,3 +40,7 @@ npm run build
 - `src/persistence` — progreso local
 - `src/components` / `src/pages` — UI
 - `src/i18n` — textos (ES, listo para más idiomas)
+
+## Apoyar el proyecto
+
+Si AI Forge te sirve, podés invitarme un cafecito: [cafecito.app/emacorreadev](https://cafecito.app/emacorreadev)

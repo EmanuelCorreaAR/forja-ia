@@ -1,4 +1,4 @@
-import { LLM_CHAOS_OPTIONS, LLM_ROUNDS } from '@/data/llm'
+import { LLM_CHAOS_ROUNDS, LLM_ROUNDS } from '@/data/llm'
 import type { EvaluationResult } from '@/domain/types'
 import type {
   LlmAction,
@@ -51,6 +51,7 @@ export function createInitialLlmState(startedAt = 0): LlmChallengeState {
     temperature: 0.7,
     chaosScore: 0,
     chaosPicks: [],
+    chaosRoundIndex: 0,
     predictCompleted: false,
     completed: false,
     startedAt,
@@ -62,10 +63,20 @@ export function getCurrentStep(state: LlmChallengeState) {
   return LLM_ROUNDS[state.stepIndex] ?? null
 }
 
+export function getCurrentChaosRound(state: LlmChallengeState) {
+  return LLM_CHAOS_ROUNDS[state.chaosRoundIndex] ?? null
+}
+
+export function isLastChaosRound(state: LlmChallengeState) {
+  return state.chaosRoundIndex >= LLM_CHAOS_ROUNDS.length - 1
+}
+
 export function getActiveOptions(state: LlmChallengeState) {
   if (state.mode === 'chaos') {
+    const round = getCurrentChaosRound(state)
+    if (!round) return []
     return withProbabilities(
-      LLM_CHAOS_OPTIONS.map((option) => ({
+      round.options.map((option) => ({
         id: option.id,
         text: option.text,
         logit: option.logit,
@@ -108,6 +119,7 @@ export function reduceLlmState(
         lastCorrect: null,
         chaosPicks: [],
         chaosScore: 0,
+        chaosRoundIndex: 0,
       }
 
     case 'FINISH_CHAOS':
@@ -130,8 +142,10 @@ export function reduceLlmState(
       if (state.phase !== 'reveal') return state
 
       if (state.mode === 'chaos') {
+        if (isLastChaosRound(state)) return state
         return {
           ...state,
+          chaosRoundIndex: state.chaosRoundIndex + 1,
           phase: 'guess',
           lastChoiceId: null,
           lastCorrect: null,
@@ -177,10 +191,12 @@ export function reduceLlmState(
       }
 
       if (state.mode === 'chaos') {
+        if (state.phase === 'reveal') return state
+        const round = getCurrentChaosRound(state)
         const options = getActiveOptions(state)
         const option = options.find((item) => item.id === action.optionId)
-        if (!option) return state
-        const meta = LLM_CHAOS_OPTIONS.find((item) => item.id === option.id)
+        if (!option || !round) return state
+        const meta = round.options.find((item) => item.id === option.id)
         const absurdity = meta?.absurdity ?? 0.5
         const rarity = 1 - option.probability
         const gained = Math.round((absurdity * 0.65 + rarity * 0.35) * 100)
@@ -269,8 +285,14 @@ export function evaluateLlm(state: LlmChallengeState): EvaluationResult {
     return {
       status: 'incomplete',
       titleKey: 'levels.llm.feedback.chaosHitTitle',
-      messageKey: 'levels.llm.feedback.chaosHitMessage',
-      messageParams: { chaosScore: state.chaosScore },
+      messageKey: isLastChaosRound(state)
+        ? 'levels.llm.feedback.chaosLastMessage'
+        : 'levels.llm.feedback.chaosHitMessage',
+      messageParams: {
+        chaosScore: state.chaosScore,
+        current: state.chaosRoundIndex + 1,
+        total: LLM_CHAOS_ROUNDS.length,
+      },
     }
   }
 
@@ -328,8 +350,12 @@ export function evaluateLlm(state: LlmChallengeState): EvaluationResult {
         ? 'levels.llm.feedback.chaosMessage'
         : 'levels.llm.feedback.incompleteMessage',
     messageParams: {
-      current: state.stepIndex + 1,
-      total: LLM_ROUNDS.length,
+      current:
+        state.mode === 'chaos'
+          ? state.chaosRoundIndex + 1
+          : state.stepIndex + 1,
+      total:
+        state.mode === 'chaos' ? LLM_CHAOS_ROUNDS.length : LLM_ROUNDS.length,
     },
   }
 }

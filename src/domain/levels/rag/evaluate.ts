@@ -119,10 +119,15 @@ export function evaluateRag(state: RagChallengeState): EvaluationResult {
   }
 
   if (state.completed && state.lastRun) {
+    const nightmare = state.mode === 'nightmare'
     return {
       status: 'success',
-      titleKey: state.lastRun.feedbackTitleKey,
-      messageKey: state.lastRun.feedbackKey,
+      titleKey: nightmare
+        ? 'levels.rag.feedback.nightmareSuccessTitle'
+        : state.lastRun.feedbackTitleKey,
+      messageKey: nightmare
+        ? 'levels.rag.feedback.nightmareSuccessMessage'
+        : state.lastRun.feedbackKey,
       metrics: {
         attempts: state.attempts,
         elapsedMs: 0,
