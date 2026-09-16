@@ -6,9 +6,7 @@ export const es = {
       'Un laboratorio interactivo para descubrir cómo funcionan los sistemas modernos de IA.',
   },
   nav: {
-    home: 'Inicio',
     backHome: 'Volver al laboratorio',
-    levels: 'Niveles',
   },
   home: {
     available: 'Niveles disponibles',
@@ -27,19 +25,166 @@ export const es = {
     run: 'Ejecutar',
     submit: 'Comprobar',
     attempts: 'Intentos',
-    attemptsHint: 'Hipótesis que no cerraron — fallar es parte del juego',
+    time: 'Tiempo',
     explanation: 'Qué acabás de aprender',
     simplification:
       'Visualización 2D pedagógica — en la realidad los embeddings viven en cientos o miles de dimensiones.',
     similarity: 'similitud',
   },
-  share: {
-    title: 'Score de Forja IA',
-    score: 'Puntos',
-    cta: '¿Podés superar esto? Copiá el desafío y mandáselo a alguien.',
-    copy: 'Copiar desafío',
-    copied: '¡Copiado!',
-    time: 'Tiempo',
+  glossary: {
+    generate: {
+      term: 'GENERATE',
+      definition:
+        'El modelo produce texto token a token: en cada paso estima qué sigue según el contexto.',
+    },
+    find: {
+      term: 'FIND',
+      definition:
+        'Con embeddings, buscar deja de ser match de palabras: se compara significado en un espacio vectorial.',
+    },
+    retrieve: {
+      term: 'RETRIEVE',
+      definition:
+        'Antes de responder, el sistema recupera pedazos de tus documentos y los inyecta como contexto.',
+    },
+    act: {
+      term: 'ACT',
+      definition:
+        'Con tools, el modelo elige una acción y el runtime la ejecuta: deja de solo hablar.',
+    },
+    llm: {
+      term: 'LLM',
+      definition:
+        'Large Language Model: predice el próximo token a partir del contexto. No “sabe” cosas, estima probabilidades.',
+    },
+    embeddings: {
+      term: 'Embeddings',
+      definition:
+        'Vectores que representan significado. Dos textos parecidos quedan cerca aunque no compartan palabras.',
+    },
+    rag: {
+      term: 'RAG',
+      definition:
+        'Retrieval-Augmented Generation: primero buscás pedazos relevantes en tus documentos, después el LLM responde con eso como contexto.',
+    },
+    tools: {
+      term: 'Tools',
+      definition:
+        'Function calling: el modelo elige una herramienta y sus argumentos, y el runtime ejecuta la acción.',
+    },
+    mcp: {
+      term: 'MCP',
+      definition:
+        'Model Context Protocol: estándar para que un modelo descubra y use herramientas externas sin hardcodearlas.',
+    },
+    agents: {
+      term: 'Agents',
+      definition:
+        'Un modelo que planifica, ejecuta tools y revisa resultados en bucle hasta cerrar la tarea.',
+    },
+    context: {
+      term: 'Context',
+      definition:
+        'La ventana de contexto (context window): todo lo que el modelo ve en una llamada — instrucciones, historial y documentos.',
+    },
+    evaluation: {
+      term: 'Evaluation',
+      definition:
+        'Medir calidad con casos y métricas repetibles en vez de impresiones sueltas.',
+    },
+    security: {
+      term: 'Security',
+      definition:
+        'Prompt injection y compañía: entradas que secuestran las instrucciones o filtran datos.',
+    },
+    cost: {
+      term: 'Cost',
+      definition:
+        'Cada llamada se paga en tokens de entrada y de salida: el contexto largo cuesta.',
+    },
+    latency: {
+      term: 'Latency',
+      definition:
+        'Cuánto tarda el sistema completo: modelo, retrieval y tools suman tiempo.',
+    },
+    'multi-agent': {
+      term: 'Multi-Agent',
+      definition:
+        'Varios agentes especializados que se coordinan y se pasan trabajo entre sí.',
+    },
+    token: {
+      term: 'token',
+      definition:
+        'Un token es la unidad que maneja el modelo: un pedazo de palabra, no una letra ni siempre una palabra entera.',
+    },
+    temperature: {
+      term: 'Temperatura',
+      definition:
+        'Cuánto se achata o se abre la distribución: baja se aferra al favorito, alta da chance a los tokens raros.',
+    },
+    chunk: {
+      term: 'chunk',
+      definition:
+        'El pedazo (chunk) en que cortás un documento antes de indexarlo. Muy grande mezcla temas; muy chico pierde detalle.',
+    },
+    topK: {
+      term: 'top-K',
+      definition:
+        'El top-K: cuántos resultados de la búsqueda entran al contexto del modelo.',
+    },
+    threshold: {
+      term: 'threshold',
+      definition:
+        'El threshold es el umbral de similitud mínima para aceptar un resultado. Muy alto no entra nada; muy bajo entra basura.',
+    },
+    vectorSpace: {
+      term: 'embedding space',
+      definition:
+        'El espacio vectorial (embedding space) donde viven los embeddings. Acá se dibuja en 2D; en la realidad son cientos o miles de dimensiones.',
+    },
+    similarity: {
+      term: 'similarity',
+      definition:
+        'La similarity mide qué tan cerca están dos vectores. Es lo que se usa para rankear resultados.',
+    },
+    toolCall: {
+      term: 'Tool call',
+      definition:
+        'Lo que emite el modelo: nombre de la tool + argumentos. El runtime es quien la ejecuta.',
+    },
+    noTool: {
+      term: 'NO TOOL',
+      definition:
+        'Responder en texto sin llamar ninguna herramienta. Tener tools disponibles no obliga a usarlas.',
+    },
+    args: {
+      term: 'Arguments',
+      definition:
+        'Los parámetros de la tool. El schema define nombres y tipos: si no coinciden, la llamada falla.',
+    },
+    precision: {
+      term: 'Precision',
+      definition:
+        '¿Hiciste exactamente la acción necesaria? Un agente no debería llamar herramientas de más.',
+    },
+    toolSelection: {
+      term: 'Tool selection',
+      definition: '¿Elegiste la tool que matchea la intención del usuario?',
+    },
+    argumentAccuracy: {
+      term: 'Argument accuracy',
+      definition: '¿Los argumentos eran correctos en nombre, tipo y valor?',
+    },
+    unnecessaryCalls: {
+      term: 'Unnecessary calls',
+      definition:
+        'Llamadas que no hacían falta: el modelo podía responder directo en texto.',
+    },
+    attempts: {
+      term: 'Intentos',
+      definition:
+        'Hipótesis que no cerraron — fallar es parte del juego.',
+    },
   },
   levels: {
     llm: {
@@ -75,7 +220,7 @@ export const es = {
       chaosNext: 'Siguiente caos',
       enterChaos: 'Entrar a CHAOS MODE',
       skipChaos: 'Terminar acá',
-      finishChaos: 'Cerrar chaos y compartir',
+      finishChaos: 'Cerrar chaos y ver resultado',
       explanation:
         'Un LLM genera texto token a token. El contexto mueve las probs; la temperatura decide cuánto se pelea el top-1 con las opciones raras.',
       feedback: {
@@ -98,7 +243,7 @@ export const es = {
         chaosHitMessage:
           'Caos {{current}}/{{total}} · acumulado {{chaosScore}}. Siguiente contexto distinto.',
         chaosLastMessage:
-          'Último caos · acumulado {{chaosScore}}. Cerrá y compartí el score.',
+          'Último caos · acumulado {{chaosScore}}. Cerrá y mirá tus métricas.',
         successTitle: 'Partida cerrada',
         successMessage:
           'Score {{score}} · racha {{bestStreak}} · caos {{chaosScore}}.',
@@ -251,7 +396,7 @@ export const es = {
           'El pedazo de reembolsos entró al LLM y la respuesta es usable. Eso es RAG.',
         nightmareSuccessTitle: 'NIGHTMARE superado',
         nightmareSuccessMessage:
-          'Lo arreglaste contrarreloj. Mismo truco: contexto bueno → respuesta buena. Ahora sí podés flexear el score.',
+          'Lo arreglaste contrarreloj. Mismo truco: contexto bueno → respuesta buena.',
       },
     },
     tools: {
@@ -261,9 +406,8 @@ export const es = {
       cardDescription:
         'Construí la tool call correcta o decidí que no hace falta ninguna.',
       hook: 'El modelo sabe hablar. Ahora enseñale a hacer cosas.',
-      arc: 'GENERATE → FIND → RETRIEVE → ACT',
       mission:
-        'Leé el pedido del usuario. Elegí una tool del catálogo (o NO TOOL), completá los args y ejecutá. Si te equivocás, RETRY vuelve el mundo a como estaba.',
+        'Leé el pedido del usuario. Elegí una tool del catálogo (o NO TOOL), completá los args y ejecutá. Si te equivocás, Reintentar vuelve el mundo a como estaba.',
       nightmareMission:
         'El modelo ya armó una tool call rota. Encontrá el mismatch y el tipo inválido; reparala y ejecutá.',
       userLabel: 'Usuario',
@@ -273,7 +417,7 @@ export const es = {
       execute: 'Ejecutar',
       retry: 'Reintentar',
       nextMission: 'Siguiente misión',
-      finishAct: 'Cerrar ACT y ver score',
+      finishAct: 'Cerrar ACT y ver métricas',
       enterNightmare: 'Entrar a NIGHTMARE',
       skipNightmare: 'Terminar acá',
       nightmareBadge: 'NIGHTMARE',
@@ -282,6 +426,7 @@ export const es = {
       brokenCallLabel: 'Tool call del modelo',
       resultLabel: 'Resultado',
       metrics: {
+        score: 'Puntos',
         toolSelection: 'Tool selection',
         argumentAccuracy: 'Argument accuracy',
         unnecessaryCalls: 'Unnecessary calls',
@@ -347,7 +492,7 @@ export const es = {
         orderNotFound: 'No existe el pedido #{{id}}',
         actionExecutedTitle: 'ACTION EXECUTED',
         actionExecutedMessage:
-          'La acción corrió… y cambió el mundo. No era lo que pedía el usuario. Usá RETRY para volver al estado inicial de la misión.',
+          'La acción corrió… y cambió el mundo. No era lo que pedía el usuario. Usá Reintentar para volver al estado inicial de la misión.',
         toolMismatchTitle: 'TOOL MISMATCH',
         toolMismatchMessage:
           'refund_order no corresponde a lo que pidió el usuario.',

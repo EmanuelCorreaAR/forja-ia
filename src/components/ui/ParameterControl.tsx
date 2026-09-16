@@ -1,6 +1,6 @@
 type ParameterControlProps = {
   id: string
-  label: string
+  label: React.ReactNode
   valueLabel?: string
   children: React.ReactNode
 }

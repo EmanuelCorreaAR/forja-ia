@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Term } from '@/components/ui/Term'
 import { t } from '@/i18n'
 
 type LevelLayoutProps = {
@@ -24,12 +25,12 @@ export function LevelLayout({
           <h1>{title}</h1>
         </div>
         <div className="row">
-          <span
-            className="badge"
-            aria-live="polite"
-            title={t('common.attemptsHint')}
-          >
-            {t('common.attempts')}: {attempts}
+          <span className="badge" aria-live="polite">
+            <Term
+              id="attempts"
+              label={t('common.attempts')}
+              className="term--end"
+            />: {attempts}
           </span>
           <button type="button" className="btn btn--ghost" onClick={onReset}>
             {t('common.reset')}

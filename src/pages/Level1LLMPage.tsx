@@ -9,10 +9,6 @@ import {
   isLastChaosRound,
   reduceLlmState,
 } from '@/domain/levels/llm/evaluate'
-import {
-  buildChallengeCode,
-  formatShareText,
-} from '@/domain/shareScore'
 import { useProgress } from '@/context/ProgressContext'
 import { LevelLayout } from '@/components/layout/LevelLayout'
 import { ChallengePanel } from '@/components/ui/ChallengePanel'
@@ -20,8 +16,9 @@ import { FeedbackPanel } from '@/components/ui/FeedbackPanel'
 import { MissionPanel } from '@/components/ui/MissionPanel'
 import { ParameterControl } from '@/components/ui/ParameterControl'
 import { ProbabilityBar } from '@/components/ui/ProbabilityBar'
-import { ShareCard } from '@/components/ui/ShareCard'
+import { ResultMetrics } from '@/components/ui/ResultMetrics'
 import { SuccessState } from '@/components/ui/SuccessState'
+import { Term } from '@/components/ui/Term'
 import { Token } from '@/components/ui/Token'
 import { t } from '@/i18n'
 
@@ -68,16 +65,10 @@ export function Level1LLMPage() {
     performance.now() - (startedAtRef.current ?? performance.now()),
   )
 
-  const share = useMemo(() => {
+  const resultMetrics = useMemo(() => {
     if (!state.completed) return null
-    const challengeCode = buildChallengeCode('llm', {
-      score: state.score,
-      attempts: state.attempts,
-      streak: state.bestStreak,
-      chaos: state.chaosScore,
-      temp: state.temperature,
-    })
-    const metrics = [
+    return [
+      { label: t('levels.llm.scoreLabel'), value: String(state.score) },
       { label: t('common.attempts'), value: String(state.attempts) },
       { label: t('levels.llm.streakLabel'), value: String(state.bestStreak) },
       {
@@ -89,13 +80,6 @@ export function Level1LLMPage() {
         value: state.temperature.toFixed(1),
       },
     ]
-    const shareText = formatShareText({
-      levelLabel: t('levels.llm.subtitle'),
-      challengeCode,
-      score: state.score,
-      lines: metrics.map((metric) => `${metric.label}: ${metric.value}`),
-    })
-    return { challengeCode, metrics, shareText, score: state.score }
   }, [state])
 
   const tone =
@@ -141,11 +125,19 @@ export function Level1LLMPage() {
 
       <ChallengePanel>
         <div className="panel stack">
-          <h2>{t('levels.llm.contextLabel')}</h2>
+          <h2>
+            <Term id="context" label={t('levels.llm.contextLabel')} />
+          </h2>
           <div className="context-box" aria-live="polite">
             {contextText}{' '}
             {!state.completed ? (
-              <span className="token-slot">{t('levels.llm.nextTokenSlot')}</span>
+              <span className="token-slot">
+                <Term
+                  id="token"
+                  label={t('levels.llm.nextTokenSlot')}
+                  variant="static"
+                />
+              </span>
             ) : null}
           </div>
 
@@ -153,7 +145,13 @@ export function Level1LLMPage() {
             <div className="stack" style={{ gap: '0.35rem' }}>
               <ParameterControl
                 id="temperature"
-                label={t('levels.llm.tempLabel')}
+                label={
+                  <Term
+                    id="temperature"
+                    label={t('levels.llm.tempLabel')}
+                    variant="static"
+                  />
+                }
                 valueLabel={state.temperature.toFixed(1)}
               >
                 <div className="row" style={{ width: '100%' }}>
@@ -311,23 +309,20 @@ export function Level1LLMPage() {
             tone={tone}
           />
 
-          {state.completed && share ? (
+          {state.completed && resultMetrics ? (
             <>
               <SuccessState
                 title={t('common.explanation')}
                 explanation={t('levels.llm.explanation')}
               />
-              <ShareCard
-                challengeCode={share.challengeCode}
-                score={share.score}
+              <ResultMetrics
                 metrics={[
-                  ...share.metrics,
+                  ...resultMetrics,
                   {
-                    label: t('share.time'),
+                    label: t('common.time'),
                     value: `${(elapsedMs / 1000).toFixed(1)}s`,
                   },
                 ]}
-                shareText={share.shareText}
               />
             </>
           ) : null}

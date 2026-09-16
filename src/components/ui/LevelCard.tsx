@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Term } from '@/components/ui/Term'
 import { t } from '@/i18n'
 
 type LevelCardProps = {
@@ -8,6 +9,8 @@ type LevelCardProps = {
   status: 'locked' | 'available' | 'completed'
   to: string
   order: number
+  /** Glossary id for the category label */
+  termId: string
 }
 
 const STATUS_LABEL: Record<LevelCardProps['status'], string> = {
@@ -23,6 +26,7 @@ export function LevelCard({
   status,
   to,
   order,
+  termId,
 }: LevelCardProps) {
   const locked = status === 'locked'
   const content = (
@@ -38,7 +42,9 @@ export function LevelCard({
       </div>
       <h3 className="level-card__title">{subtitle}</h3>
       <p className="level-card__desc">{description}</p>
-      <span className="mono muted">{title}</span>
+      <span className="mono muted">
+        <Term id={termId} label={title} variant="static" />
+      </span>
     </>
   )
 

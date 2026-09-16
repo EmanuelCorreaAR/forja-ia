@@ -7,7 +7,9 @@
 - Misión memorable: unnecessary tool call (“¿Qué es RAG?”)
 - NIGHTMARE: reparar call con TOOL MISMATCH + INVALID ARGUMENT TYPE
 - Score: Tool selection, Argument accuracy, Unnecessary calls, Precision, Attempts, Time
-- Share codes `TLS-****`; unlock tras completar RAG
+- Unlock tras completar RAG
+- Tooltips de glosario en los términos técnicos de toda la app
+- Fuera la tarjeta de compartir y los códigos de desafío: sin backend, las métricas quedan en el nivel
 
 ## 0.2.0
 

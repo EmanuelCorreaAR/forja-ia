@@ -14,16 +14,14 @@ import {
   reduceToolsState,
 } from '@/domain/levels/tools/evaluate'
 import type { ToolId } from '@/domain/levels/tools/types'
-import {
-  buildChallengeCode,
-  formatShareText,
-} from '@/domain/shareScore'
 import { useProgress } from '@/context/ProgressContext'
 import { LevelLayout } from '@/components/layout/LevelLayout'
+import { ArcTrail } from '@/components/ui/ArcTrail'
 import { FeedbackPanel } from '@/components/ui/FeedbackPanel'
 import { MissionPanel } from '@/components/ui/MissionPanel'
-import { ShareCard } from '@/components/ui/ShareCard'
+import { ResultMetrics } from '@/components/ui/ResultMetrics'
 import { SuccessState } from '@/components/ui/SuccessState'
+import { Term } from '@/components/ui/Term'
 import { t } from '@/i18n'
 
 export function Level4ToolsPage() {
@@ -72,19 +70,13 @@ export function Level4ToolsPage() {
         ? 'error'
         : 'hint'
 
-  const share = useMemo(() => {
+  const resultMetrics = useMemo(() => {
     if (!state.actCompleted) return null
-    const challengeCode = buildChallengeCode('tools', {
-      score,
-      attempts: state.attempts,
-      precision: percent(
-        state.metrics.precisionHits,
-        state.metrics.precisionTotal,
-      ),
-      unnecessary: state.metrics.unnecessaryCalls,
-      nightmare: state.nightmareCompleted,
-    })
-    const metrics = [
+    return [
+      {
+        label: t('levels.tools.metrics.score'),
+        value: String(score),
+      },
       {
         label: t('levels.tools.metrics.toolSelection'),
         value: `${percent(state.metrics.toolSelectionHits, state.metrics.toolSelectionTotal)}%`,
@@ -110,13 +102,6 @@ export function Level4ToolsPage() {
         value: `${(elapsedMs / 1000).toFixed(1)}s`,
       },
     ]
-    const shareText = formatShareText({
-      levelLabel: t('levels.tools.subtitle'),
-      challengeCode,
-      score,
-      lines: metrics.map((m) => `${m.label}: ${m.value}`),
-    })
-    return { challengeCode, metrics, shareText, score }
   }, [state, score, elapsedMs])
 
   const userMessage =
@@ -143,7 +128,7 @@ export function Level4ToolsPage() {
       }}
     >
       <p className="tools-hook">{t('levels.tools.hook')}</p>
-      <p className="mono muted tools-arc">{t('levels.tools.arc')}</p>
+      <ArcTrail />
 
       <div className="row" style={{ marginBottom: '0.5rem' }}>
         {state.mode === 'nightmare' ? (
@@ -159,8 +144,13 @@ export function Level4ToolsPage() {
           </span>
         )}
         <span className="badge">
-          {t('levels.tools.metrics.precision')}:{' '}
-          {percent(state.metrics.precisionHits, state.metrics.precisionTotal)}%
+          <Term id="precision" label={t('levels.tools.metrics.precision')} />:{' '}
+          {state.metrics.precisionTotal === 0
+            ? '—'
+            : `${percent(
+                state.metrics.precisionHits,
+                state.metrics.precisionTotal,
+              )}% (${state.metrics.precisionHits}/${state.metrics.precisionTotal})`}
         </span>
       </div>
 
@@ -239,17 +229,21 @@ export function Level4ToolsPage() {
               }
             }}
           >
-            {t('levels.tools.noTool')}
+            <Term
+              id="noTool"
+              label={t('levels.tools.noTool')}
+              variant="static"
+            />
           </button>
         </section>
 
-        <section className="panel stack">
+        <section className="panel stack tools-builder">
           <h2 style={{ margin: 0 }}>{t('levels.tools.builderLabel')}</h2>
 
           {state.mode === 'nightmare' && state.nightmareDraft ? (
-            <>
-              <p className="muted" style={{ margin: 0 }}>
-                {t('levels.tools.brokenCallLabel')}
+            <div className="tools-call">
+              <p className="tools-call__label">
+                <Term id="toolCall" label={t('levels.tools.brokenCallLabel')} />
               </p>
               <pre className="tools-json">
                 {JSON.stringify(
@@ -261,64 +255,70 @@ export function Level4ToolsPage() {
                   2,
                 )}
               </pre>
-              <p className="muted" style={{ margin: 0 }}>
-                {t('levels.tools.argsLabel')}
+              <p className="tools-call__label">
+                <Term id="args" label={t('levels.tools.argsLabel')} />
               </p>
-              {getToolDef(state.nightmareDraft.toolId).args.map((arg) => (
-                <label key={arg.name} className="tools-arg">
-                  <span className="mono">
-                    {arg.name}
-                    <span className="muted"> : {arg.type}</span>
-                  </span>
-                  <input
-                    className="input"
-                    value={String(state.nightmareDraft?.args[arg.name] ?? '')}
-                    disabled={Boolean(state.lastRun?.precise)}
-                    onChange={(e) =>
-                      dispatch({
-                        type: 'NIGHTMARE_SET_ARG',
-                        name: arg.name,
-                        value: e.target.value,
-                      })
-                    }
-                    placeholder={t(arg.descriptionKey)}
-                  />
-                </label>
-              ))}
-            </>
+              <div className="tools-call__fields">
+                {getToolDef(state.nightmareDraft.toolId).args.map((arg) => (
+                  <label key={arg.name} className="tools-arg">
+                    <span className="mono">
+                      {arg.name}
+                      <span className="muted"> : {arg.type}</span>
+                    </span>
+                    <input
+                      className="input"
+                      value={String(state.nightmareDraft?.args[arg.name] ?? '')}
+                      disabled={Boolean(state.lastRun?.precise)}
+                      onChange={(e) =>
+                        dispatch({
+                          type: 'NIGHTMARE_SET_ARG',
+                          name: arg.name,
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder={t(arg.descriptionKey)}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
           ) : null}
 
           {state.mode === 'act' && state.selected?.kind === 'tool' ? (
-            <>
-              <p className="mono" style={{ margin: 0 }}>
-                {state.selected.toolId}
+            <div className="tools-call">
+              <p className="mono tools-call__tool">{state.selected.toolId}</p>
+              <p className="tools-call__label">
+                <Term id="args" label={t('levels.tools.argsLabel')} />
               </p>
-              <p className="muted" style={{ margin: 0 }}>
-                {t('levels.tools.argsLabel')}
-              </p>
-              {getToolDef(state.selected.toolId).args.map((arg) => (
-                <label key={arg.name} className="tools-arg">
-                  <span className="mono">{arg.name}</span>
-                  <input
-                    className="input"
-                    value={state.selected?.kind === 'tool' ? state.selected.args[arg.name] ?? '' : ''}
-                    disabled={Boolean(state.lastRun?.precise)}
-                    onChange={(e) =>
-                      dispatch({
-                        type: 'SET_ARG',
-                        name: arg.name,
-                        value: e.target.value,
-                      })
-                    }
-                    placeholder={
-                      mission?.addressHint && arg.name === 'address'
-                        ? mission.addressHint
-                        : t(arg.descriptionKey)
-                    }
-                  />
-                </label>
-              ))}
-            </>
+              <div className="tools-call__fields">
+                {getToolDef(state.selected.toolId).args.map((arg) => (
+                  <label key={arg.name} className="tools-arg">
+                    <span className="mono">{arg.name}</span>
+                    <input
+                      className="input"
+                      value={
+                        state.selected?.kind === 'tool'
+                          ? (state.selected.args[arg.name] ?? '')
+                          : ''
+                      }
+                      disabled={Boolean(state.lastRun?.precise)}
+                      onChange={(e) =>
+                        dispatch({
+                          type: 'SET_ARG',
+                          name: arg.name,
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder={
+                        mission?.addressHint && arg.name === 'address'
+                          ? mission.addressHint
+                          : t(arg.descriptionKey)
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
           ) : null}
 
           {state.selected?.kind === 'no_tool' ? (
@@ -394,14 +394,9 @@ export function Level4ToolsPage() {
         />
       )}
 
-      {showActComplete && share ? (
+      {showActComplete && resultMetrics ? (
         <>
-          <ShareCard
-            challengeCode={share.challengeCode}
-            score={share.score}
-            metrics={share.metrics}
-            shareText={share.shareText}
-          />
+          <ResultMetrics metrics={resultMetrics} />
           {!state.nightmareCompleted ? (
             <button
               type="button"
@@ -418,14 +413,9 @@ export function Level4ToolsPage() {
         </>
       ) : null}
 
-      {showNightmareComplete && share ? (
+      {showNightmareComplete && resultMetrics ? (
         <>
-          <ShareCard
-            challengeCode={share.challengeCode}
-            score={share.score}
-            metrics={share.metrics}
-            shareText={share.shareText}
-          />
+          <ResultMetrics metrics={resultMetrics} />
           <SuccessState
             title={t('common.explanation')}
             explanation={t('levels.tools.nightmareExplanation')}

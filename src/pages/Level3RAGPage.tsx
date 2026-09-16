@@ -11,10 +11,6 @@ import {
   reduceRagState,
 } from '@/domain/levels/rag/evaluate'
 import type { ChunkSize, TopK } from '@/domain/levels/rag/types'
-import {
-  buildChallengeCode,
-  formatShareText,
-} from '@/domain/shareScore'
 import { useProgress } from '@/context/ProgressContext'
 import { LevelLayout } from '@/components/layout/LevelLayout'
 import { ChallengePanel } from '@/components/ui/ChallengePanel'
@@ -23,8 +19,9 @@ import { FeedbackPanel } from '@/components/ui/FeedbackPanel'
 import { ParameterControl } from '@/components/ui/ParameterControl'
 import { Connection, PipelineNode } from '@/components/ui/PipelineNode'
 import { MissionPanel } from '@/components/ui/MissionPanel'
-import { ShareCard } from '@/components/ui/ShareCard'
+import { ResultMetrics } from '@/components/ui/ResultMetrics'
 import { SuccessState } from '@/components/ui/SuccessState'
+import { Term } from '@/components/ui/Term'
 import { t } from '@/i18n'
 
 export function Level3RAGPage() {
@@ -95,37 +92,19 @@ export function Level3RAGPage() {
     performance.now() - (startedAtRef.current ?? performance.now()),
   )
 
-  const share = useMemo(() => {
+  const resultMetrics = useMemo(() => {
     if (!state.completed) return null
     const tokens =
       (state.lastRun?.contextChunkIds.length ?? 0) * state.config.chunkSize
-    const challengeCode = buildChallengeCode('rag', {
-      score,
-      attempts: state.attempts,
-      tokens,
-      mode: state.mode,
-      time: elapsedMs,
-    })
-    const metrics = [
+    return [
+      { label: t('levels.rag.scoreLabel'), value: String(score) },
       { label: t('common.attempts'), value: String(state.attempts) },
+      { label: t('levels.rag.tokensLabel'), value: String(tokens) },
       {
-        label: t('share.time'),
+        label: t('common.time'),
         value: `${(elapsedMs / 1000).toFixed(1)}s`,
       },
-      { label: t('levels.rag.tokensLabel'), value: String(tokens) },
     ]
-    const shareText = formatShareText({
-      levelLabel: t('levels.rag.subtitle'),
-      challengeCode,
-      score,
-      lines: [
-        `Modo: ${state.mode}`,
-        `Intentos: ${state.attempts}`,
-        `Tokens contexto: ${tokens}`,
-        `Tiempo: ${(elapsedMs / 1000).toFixed(1)}s`,
-      ],
-    })
-    return { challengeCode, metrics, shareText, score }
   }, [
     state.completed,
     state.attempts,
@@ -226,7 +205,13 @@ export function Level3RAGPage() {
 
             <ParameterControl
               id="chunk-size"
-              label={t('levels.rag.chunkSize')}
+              label={
+                <Term
+                  id="chunk"
+                  label={t('levels.rag.chunkSize')}
+                  variant="static"
+                />
+              }
               valueLabel={t(
                 `levels.rag.chunkSizeOptions.${state.config.chunkSize}`,
               )}
@@ -253,7 +238,13 @@ export function Level3RAGPage() {
 
             <ParameterControl
               id="top-k"
-              label={t('levels.rag.topK')}
+              label={
+                <Term
+                  id="topK"
+                  label={t('levels.rag.topK')}
+                  variant="static"
+                />
+              }
               valueLabel={String(state.config.topK)}
             >
               <select
@@ -278,7 +269,13 @@ export function Level3RAGPage() {
 
             <ParameterControl
               id="threshold"
-              label={t('levels.rag.threshold')}
+              label={
+                <Term
+                  id="threshold"
+                  label={t('levels.rag.threshold')}
+                  variant="static"
+                />
+              }
               valueLabel={state.config.threshold.toFixed(2)}
             >
               <div className="row" style={{ width: '100%' }}>
@@ -401,14 +398,9 @@ export function Level3RAGPage() {
             tone={tone}
           />
 
-          {state.completed && share ? (
+          {state.completed && resultMetrics ? (
             <>
-              <ShareCard
-                challengeCode={share.challengeCode}
-                score={share.score}
-                metrics={share.metrics}
-                shareText={share.shareText}
-              />
+              <ResultMetrics metrics={resultMetrics} />
               {state.mode === 'repair' && !state.nightmareCompleted ? (
                 <button
                   type="button"

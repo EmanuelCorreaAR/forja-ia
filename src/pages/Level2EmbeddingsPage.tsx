@@ -13,19 +13,16 @@ import {
   getTrapDocId,
   reduceEmbeddingsState,
 } from '@/domain/levels/embeddings/evaluate'
-import {
-  buildChallengeCode,
-  formatShareText,
-} from '@/domain/shareScore'
 import { useProgress } from '@/context/ProgressContext'
 import { LevelLayout } from '@/components/layout/LevelLayout'
 import { ChallengePanel } from '@/components/ui/ChallengePanel'
 import { DocumentCard } from '@/components/ui/Document'
 import { FeedbackPanel } from '@/components/ui/FeedbackPanel'
 import { MissionPanel } from '@/components/ui/MissionPanel'
-import { ShareCard } from '@/components/ui/ShareCard'
+import { ResultMetrics } from '@/components/ui/ResultMetrics'
 import { SimilarityScore } from '@/components/ui/SimilarityScore'
 import { SuccessState } from '@/components/ui/SuccessState'
+import { Term } from '@/components/ui/Term'
 import { VectorPoint } from '@/components/ui/VectorPoint'
 import { t } from '@/i18n'
 
@@ -71,34 +68,20 @@ export function Level2EmbeddingsPage() {
   )
   const avgSim = averageSelectedSimilarity(state.selectedDocIds)
 
-  const share = useMemo(() => {
+  const resultMetrics = useMemo(() => {
     if (!state.completed) return null
-    const challengeCode = buildChallengeCode('embeddings', {
-      score: state.score,
-      attempts: state.attempts,
-      avgSim,
-      time: elapsedMs,
-    })
-    const metrics = [
+    return [
+      {
+        label: t('levels.embeddings.scoreLabel'),
+        value: String(state.score),
+      },
       { label: t('common.attempts'), value: String(state.attempts) },
       { label: t('common.similarity'), value: avgSim.toFixed(3) },
       {
-        label: t('share.time'),
+        label: t('common.time'),
         value: `${(elapsedMs / 1000).toFixed(1)}s`,
       },
     ]
-    const shareText = formatShareText({
-      levelLabel: t('levels.embeddings.subtitle'),
-      challengeCode,
-      score: state.score,
-      lines: [
-        `Similitud media: ${avgSim.toFixed(3)}`,
-        `Intentos: ${state.attempts}`,
-        `Tiempo: ${(elapsedMs / 1000).toFixed(1)}s`,
-        `Te desafío a superar ${Math.min(0.99, avgSim + 0.01).toFixed(2)}`,
-      ],
-    })
-    return { challengeCode, metrics, shareText }
   }, [state.completed, state.score, state.attempts, avgSim, elapsedMs])
 
   return (
@@ -137,7 +120,12 @@ export function Level2EmbeddingsPage() {
           </div>
 
           <div className="section-heading">
-            <h2>{t('levels.embeddings.mapLabel')}</h2>
+            <h2>
+              <Term
+                id="vectorSpace"
+                label={t('levels.embeddings.mapLabel')}
+              />
+            </h2>
             <p className="note">
               {revealing
                 ? t('levels.embeddings.mapRevealHint')
@@ -254,14 +242,9 @@ export function Level2EmbeddingsPage() {
             tone={tone}
           />
 
-          {state.completed && share ? (
+          {state.completed && resultMetrics ? (
             <>
-              <ShareCard
-                challengeCode={share.challengeCode}
-                score={state.score}
-                metrics={share.metrics}
-                shareText={share.shareText}
-              />
+              <ResultMetrics metrics={resultMetrics} />
               <SuccessState
                 title={t('common.explanation')}
                 explanation={t('levels.embeddings.explanation')}

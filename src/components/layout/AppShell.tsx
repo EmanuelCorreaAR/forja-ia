@@ -17,9 +17,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="brand-tag">{t('brand.tagline')}</span>
             </span>
           </Link>
-          <Link to="/" className="btn btn--ghost">
-            {t('nav.home')}
-          </Link>
         </header>
       ) : null}
       <main>{children}</main>

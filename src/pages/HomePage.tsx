@@ -44,6 +44,7 @@ export function HomePage() {
                 description={t(level.descriptionKey)}
                 status={status}
                 to={level.route}
+                termId={level.id}
               />
             )
           })}
@@ -64,6 +65,7 @@ export function HomePage() {
               description={t(level.descriptionKey)}
               status="locked"
               to={level.route}
+              termId={level.id}
             />
           ))}
         </div>
