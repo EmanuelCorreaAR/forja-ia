@@ -24,7 +24,7 @@ describe('shareScore', () => {
       score: 88,
       lines: ['Intentos: 2'],
     })
-    expect(text).toContain('RAG-ABCD')
-    expect(text).toContain('Score: 88')
+    expect(text).toContain('Forja IA')
+    expect(text).toContain('Puntos: 88')
   })
 })

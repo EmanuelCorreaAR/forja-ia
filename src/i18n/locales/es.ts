@@ -1,6 +1,6 @@
 export const es = {
   brand: {
-    name: 'AI Forge',
+    name: 'Forja IA',
     tagline: 'Construí. Rompé. Entendé.',
     blurb:
       'Un laboratorio interactivo para descubrir cómo funcionan los sistemas modernos de IA.',
@@ -34,8 +34,8 @@ export const es = {
     similarity: 'similitud',
   },
   share: {
-    title: 'AI Forge Score',
-    score: 'Score',
+    title: 'Score de Forja IA',
+    score: 'Puntos',
     cta: '¿Podés superar esto? Copiá el desafío y mandáselo a alguien.',
     copy: 'Copiar desafío',
     copied: '¡Copiado!',

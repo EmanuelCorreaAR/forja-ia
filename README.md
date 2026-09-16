@@ -1,4 +1,4 @@
-# AI Forge
+# Forja IA
 
 Laboratorio interactivo para aprender cómo funcionan los sistemas modernos de IA.
 
@@ -43,4 +43,4 @@ npm run build
 
 ## Apoyar el proyecto
 
-Si AI Forge te sirve, podés invitarme un cafecito: [cafecito.app/emacorreadev](https://cafecito.app/emacorreadev)
+Si Forja IA te sirve, podés invitarme un cafecito: [cafecito.app/emacorreadev](https://cafecito.app/emacorreadev)

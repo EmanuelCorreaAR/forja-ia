@@ -43,10 +43,10 @@ export function formatShareText(payload: {
   lines: string[]
 }): string {
   return [
-    `AI Forge — ${payload.levelLabel}`,
-    `Score: ${payload.score}`,
+    `Forja IA — ${payload.levelLabel}`,
+    `Puntos: ${payload.score}`,
     ...payload.lines,
     `Código: ${payload.challengeCode}`,
-    '¿Podés superar esto? → AI Forge',
+    '¿Podés superar esto? → Forja IA',
   ].join('\n')
 }
