@@ -215,6 +215,11 @@ a {
   color: var(--accent);
 }
 
+.badge--warn {
+  border-color: rgba(196, 92, 38, 0.65);
+  color: #e8a87c;
+}
+
 .badge--locked {
   color: var(--text-mute);
 }
@@ -277,10 +282,17 @@ a {
   display: grid;
   gap: 1rem;
   grid-template-columns: 1.1fr 0.9fr;
+  align-items: start;
+}
+
+.challenge-panel--map {
+  grid-template-columns: 1.45fr 0.85fr;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
-  .challenge-panel {
+  .challenge-panel,
+  .challenge-panel--map {
     grid-template-columns: 1fr;
   }
 }
@@ -411,6 +423,11 @@ a {
   background: rgba(0, 0, 0, 0.25);
 }
 
+.context-box--fail {
+  border-color: rgba(196, 92, 38, 0.55);
+  background: rgba(196, 92, 38, 0.08);
+}
+
 .token-slot {
   display: inline-block;
   min-width: 1.6em;
@@ -498,8 +515,11 @@ a {
 
 .vector-map {
   position: relative;
+  display: block;
   width: 100%;
-  aspect-ratio: 1.25 / 1;
+  min-height: 380px;
+  height: min(52vh, 480px);
+  aspect-ratio: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background:
@@ -508,6 +528,7 @@ a {
     var(--bg-1);
   background-size: 24px 24px, 24px 24px, auto;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .map-reveal {
@@ -527,14 +548,19 @@ a {
 
 .vector-point {
   position: absolute;
+  z-index: 1;
   transform: translate(-50%, -50%);
   border: 0;
   background: transparent;
   cursor: pointer;
   padding: 0;
+  margin: 0;
+  min-width: 0;
+  line-height: 0;
 }
 
 .vector-point__dot {
+  display: block;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -542,6 +568,10 @@ a {
   background: var(--bg-2);
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.25);
   transition: transform 140ms ease, background 140ms ease;
+}
+
+.vector-point.is-query {
+  z-index: 2;
 }
 
 .vector-point.is-query .vector-point__dot {
@@ -561,25 +591,35 @@ a {
   border-color: var(--accent);
 }
 
-.vector-point.is-far .vector-point__dot {
+.vector-point.is-trap .vector-point__dot {
+  border-color: #c45c26;
+  box-shadow: 0 0 0 2px rgba(196, 92, 38, 0.35);
+}
+
+.vector-point.is-anonymous .vector-point__dot {
   border-color: var(--text-mute);
+  background: var(--bg-3);
+}
+
+.vector-point.is-anonymous.is-far .vector-point__dot {
+  opacity: 0.9;
 }
 
 .vector-point__label {
   position: absolute;
-  top: 18px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  color: var(--text-dim);
-  background: rgba(7, 11, 13, 0.75);
-  padding: 0.1rem 0.3rem;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  color: var(--text);
+  background: rgba(7, 11, 13, 0.9);
+  padding: 0.15rem 0.35rem;
   border-radius: 4px;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border: 1px solid var(--line);
+  pointer-events: none;
 }
 
 .doc-item,
@@ -677,6 +717,62 @@ a {
   font-family: var(--font-mono);
 }
 
+.share-card {
+  border-color: rgba(61, 220, 151, 0.4);
+}
+
+.share-metrics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.share-metrics li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.doc-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-dim);
+}
+
+.doc-list li {
+  margin-bottom: 0.35rem;
+}
+
+.docs-panel__body {
+  height: 9.5rem;
+  overflow: auto;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+}
+
+.docs-panel__body.is-open {
+  border-color: var(--line);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.55rem 0.65rem;
+}
+
+.pipeline--compact .pipeline-node {
+  font-size: 0.75rem;
+}
+
+details summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -697,7 +793,8 @@ a {
     font-size: 2.4rem;
   }
 
-  .vector-point__label {
-    display: none;
+  .vector-map {
+    min-height: 280px;
+    height: 320px;
   }
 }

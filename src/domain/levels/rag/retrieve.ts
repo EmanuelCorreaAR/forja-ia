@@ -1,11 +1,9 @@
 import { RAG_CHUNKS_BY_SIZE } from '@/data/rag'
 import type {
-  ChunkSize,
   RagAnswerKind,
   RagConfig,
   RagRunResult,
   RetrievedChunk,
-  TopK,
 } from './types'
 
 export function retrieveChunks(config: RagConfig): RetrievedChunk[] {
@@ -27,6 +25,22 @@ export function retrieveChunks(config: RagConfig): RetrievedChunk[] {
   })
 }
 
+function hasCoreRefund(chunks: RetrievedChunk[]): boolean {
+  return chunks.some((r) =>
+    r.chunk.text
+      .toLowerCase()
+      .includes('reembolso completo dentro de los 30 días'),
+  )
+}
+
+/**
+ * Reglas simples y enseñables:
+ * - sin chunks → vacío
+ * - chunks 400 → ruido (casi siempre)
+ * - si el pedazo clave de reembolso llega y hay poco ruido → éxito
+ * - si llega poco del tema → incompleto
+ * - si no llega nada relevante → miss
+ */
 export function classifyRagAnswer(
   config: RagConfig,
   retrieved: RetrievedChunk[],
@@ -40,6 +54,7 @@ export function classifyRagAnswer(
   const included = retrieved.filter((r) => r.included)
   const relevantIncluded = included.filter((r) => r.chunk.relevant)
   const irrelevantIncluded = included.filter((r) => !r.chunk.relevant)
+  const core = hasCoreRefund(included)
 
   if (included.length === 0) {
     return {
@@ -48,67 +63,6 @@ export function classifyRagAnswer(
       feedbackTitleKey: 'levels.rag.feedback.emptyTitle',
       feedbackKey: 'levels.rag.feedback.emptyMessage',
       success: false,
-    }
-  }
-
-  // Success recipe: chunk size 100 or 200, enough relevant context, limited noise
-  const goodChunkSize: ChunkSize[] = [100, 200]
-  const hasCoreRefund = relevantIncluded.some((r) =>
-    r.chunk.text
-      .toLowerCase()
-      .includes('reembolso completo dentro de los 30 días'),
-  )
-  const enoughRelevant = relevantIncluded.length >= 1 && hasCoreRefund
-  const tooNoisy = irrelevantIncluded.length >= 2
-  const topKOk: TopK[] = [2, 3, 5]
-  const thresholdOk = config.threshold >= 0.45 && config.threshold <= 0.85
-
-  if (
-    goodChunkSize.includes(config.chunkSize) &&
-    enoughRelevant &&
-    !tooNoisy &&
-    topKOk.includes(config.topK) &&
-    thresholdOk
-  ) {
-    // For topK=1 with size 100/200, only one chunk — still OK if it's the core one
-    if (config.topK === 1 && relevantIncluded.length === 1 && hasCoreRefund) {
-      return {
-        answerKind: 'correct',
-        answerKey: 'levels.rag.answers.correct',
-        feedbackTitleKey: 'levels.rag.feedback.successTitle',
-        feedbackKey: 'levels.rag.feedback.successMessage',
-        success: true,
-      }
-    }
-    if (config.topK >= 2 && enoughRelevant) {
-      return {
-        answerKind: 'correct',
-        answerKey: 'levels.rag.answers.correct',
-        feedbackTitleKey: 'levels.rag.feedback.successTitle',
-        feedbackKey: 'levels.rag.feedback.successMessage',
-        success: true,
-      }
-    }
-  }
-
-  // Chunk size 50 with only first tiny piece and topK=1 can be incomplete
-  if (config.chunkSize === 50 && relevantIncluded.length > 0 && relevantIncluded.length < 2) {
-    return {
-      answerKind: 'incomplete',
-      answerKey: 'levels.rag.answers.incomplete',
-      feedbackTitleKey: 'levels.rag.feedback.incompleteTitle',
-      feedbackKey: 'levels.rag.feedback.incompleteMessage',
-      success: false,
-    }
-  }
-
-  if (config.chunkSize === 50 && relevantIncluded.length >= 2 && !tooNoisy && thresholdOk) {
-    return {
-      answerKind: 'correct',
-      answerKey: 'levels.rag.answers.correct',
-      feedbackTitleKey: 'levels.rag.feedback.successTitle',
-      feedbackKey: 'levels.rag.feedback.successMessage',
-      success: true,
     }
   }
 
@@ -122,6 +76,41 @@ export function classifyRagAnswer(
     }
   }
 
+  // Promo 2019 sin el chunk clave = inventa con cara de seguro
+  const promoNoise = included.some((r) =>
+    r.chunk.sourceDocId.includes('promo'),
+  )
+  if (promoNoise && !core) {
+    return {
+      answerKind: 'irrelevant',
+      answerKey: 'levels.rag.answers.promoTrap',
+      feedbackTitleKey: 'levels.rag.feedback.promoTitle',
+      feedbackKey: 'levels.rag.feedback.promoMessage',
+      success: false,
+    }
+  }
+
+  if (core && irrelevantIncluded.length <= 1) {
+    // Pedazos muy chicos: hace falta un poco más de detalle
+    if (config.chunkSize === 50 && relevantIncluded.length < 2) {
+      return {
+        answerKind: 'incomplete',
+        answerKey: 'levels.rag.answers.incomplete',
+        feedbackTitleKey: 'levels.rag.feedback.incompleteTitle',
+        feedbackKey: 'levels.rag.feedback.incompleteMessage',
+        success: false,
+      }
+    }
+
+    return {
+      answerKind: 'correct',
+      answerKey: 'levels.rag.answers.correct',
+      feedbackTitleKey: 'levels.rag.feedback.successTitle',
+      feedbackKey: 'levels.rag.feedback.successMessage',
+      success: true,
+    }
+  }
+
   if (relevantIncluded.length === 0) {
     return {
       answerKind: 'irrelevant',
@@ -132,7 +121,7 @@ export function classifyRagAnswer(
     }
   }
 
-  if (tooNoisy) {
+  if (irrelevantIncluded.length >= 2) {
     return {
       answerKind: 'irrelevant',
       answerKey: 'levels.rag.answers.confused',

@@ -22,11 +22,19 @@ export type RagConfig = {
   threshold: number
 }
 
+export type RagMode = 'repair' | 'nightmare'
+
 export type RagChallengeState = {
+  mode: RagMode
   config: RagConfig
   attempts: number
   startedAt: number
   completed: boolean
+  repairCompleted: boolean
+  nightmareCompleted: boolean
+  /** Epoch ms deadline — solo métrica/UI; la eval de config sigue determinista */
+  deadlineAt: number | null
+  timedOut: boolean
   lastRun: RagRunResult | null
 }
 
@@ -53,4 +61,6 @@ export type RagAction =
   | { type: 'SET_TOP_K'; topK: TopK }
   | { type: 'SET_THRESHOLD'; threshold: number }
   | { type: 'RUN' }
+  | { type: 'ENTER_NIGHTMARE'; now: number }
+  | { type: 'TIMEOUT' }
   | { type: 'RESET' }

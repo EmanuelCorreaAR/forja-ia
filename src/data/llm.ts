@@ -1,65 +1,65 @@
 import type { LlmStep } from '@/domain/levels/llm/types'
 
-/** Pasos deterministas — la opción correcta no siempre es la primera */
-export const LLM_STEPS: LlmStep[] = [
+/**
+ * Rondas jugables: el contexto mueve las probs.
+ * logits fijos → temperatura redistribuye de forma determinista.
+ */
+export const LLM_ROUNDS: LlmStep[] = [
   {
-    id: 'step-1',
-    context: 'El gato está sentado sobre la',
+    id: 'fridge-dog',
+    context: 'El perro abrió la heladera y encontró un',
     options: [
-      { id: 'techo', text: 'techo', probability: 0.18 },
-      { id: 'alfombra', text: 'alfombra', probability: 0.62 },
-      { id: 'luna', text: 'luna', probability: 0.06 },
-      { id: 'mesa', text: 'mesa', probability: 0.14 },
+      { id: 'queso', text: 'queso', logit: 2.4 },
+      { id: 'ovni', text: 'ovni', logit: 0.4 },
+      { id: 'volcan', text: 'volcán', logit: 0.1 },
+      { id: 'dinosaurio', text: 'dinosaurio', logit: 0.6 },
     ],
-    correctOptionId: 'alfombra',
+    correctOptionId: 'queso',
   },
   {
-    id: 'step-2',
-    context: 'El gato está sentado sobre la alfombra',
+    id: 'fridge-astronaut',
+    context: 'El astronauta abrió la heladera y encontró un',
     options: [
-      { id: 'volando', text: 'volando', probability: 0.09 },
-      { id: 'period', text: '.', probability: 0.33 },
-      { id: 'porque', text: 'porque', probability: 0.41 },
-      { id: 'y', text: 'y', probability: 0.17 },
+      { id: 'queso', text: 'queso', logit: 0.8 },
+      { id: 'ovni', text: 'ovni', logit: 0.5 },
+      { id: 'tubo', text: 'tubo de oxígeno', logit: 2.2 },
+      { id: 'dinosaurio', text: 'dinosaurio', logit: 0.3 },
     ],
-    correctOptionId: 'porque',
+    correctOptionId: 'tubo',
   },
   {
-    id: 'step-3',
-    context: 'El gato está sentado sobre la alfombra porque',
+    id: 'fridge-pirate',
+    context: 'El pirata abrió la heladera y encontró un',
     options: [
-      { id: 'pizza', text: 'pizza', probability: 0.12 },
-      { id: 'el', text: 'el', probability: 0.25 },
-      { id: 'quantum', text: 'quantum', probability: 0.08 },
-      { id: 'esta', text: 'está', probability: 0.55 },
+      { id: 'mapa', text: 'mapa del tesoro', logit: 2.1 },
+      { id: 'queso', text: 'queso', logit: 0.9 },
+      { id: 'laptop', text: 'laptop', logit: 0.2 },
+      { id: 'yogur', text: 'yogur', logit: 0.7 },
     ],
-    correctOptionId: 'esta',
+    correctOptionId: 'mapa',
   },
   {
-    id: 'step-4',
-    context: 'El gato está sentado sobre la alfombra porque está',
+    id: 'fridge-hacker',
+    context: 'El hacker abrió la heladera y encontró un',
     options: [
-      { id: 'era', text: 'era', probability: 0.36 },
-      { id: 'explotado', text: 'explotado', probability: 0.05 },
-      { id: 'muy', text: 'muy', probability: 0.48 },
-      { id: 'escribio', text: 'escribió', probability: 0.11 },
+      { id: 'pendrive', text: 'pendrive', logit: 2.0 },
+      { id: 'queso', text: 'queso', logit: 0.6 },
+      { id: 'firewall', text: 'firewall', logit: 1.1 },
+      { id: 'lechuga', text: 'lechuga', logit: 0.4 },
     ],
-    correctOptionId: 'muy',
-  },
-  {
-    id: 'step-5',
-    context: 'El gato está sentado sobre la alfombra porque está muy',
-    options: [
-      { id: 'invisible', text: 'invisible', probability: 0.19 },
-      { id: 'caliente', text: 'caliente', probability: 0.44 },
-      { id: 'un', text: 'un', probability: 0.28 },
-      { id: 'debuggeando', text: 'debuggeando', probability: 0.09 },
-    ],
-    correctOptionId: 'caliente',
+    correctOptionId: 'pendrive',
   },
 ]
 
-export const LLM_TARGET_SEQUENCE =
-  'El gato está sentado sobre la alfombra porque está muy caliente'
+/** Tokens válidos en CHAOS (absurdo pero aún “jugable”) */
+export const LLM_CHAOS_OPTIONS = [
+  { id: 'queso', text: 'queso', logit: 1.2, absurdity: 0.2 },
+  { id: 'ovni', text: 'ovni', logit: 0.8, absurdity: 0.85 },
+  { id: 'dinosaurio', text: 'dinosaurio', logit: 0.7, absurdity: 0.9 },
+  { id: 'volcan', text: 'volcán', logit: 0.5, absurdity: 0.95 },
+  { id: 'meem', text: 'meme', logit: 0.9, absurdity: 0.75 },
+  { id: 'portal', text: 'portal', logit: 0.6, absurdity: 0.88 },
+] as const
 
-export const LLM_OBJECTIVE_KEY = 'levels.llm.objective'
+export const LLM_CHAOS_CONTEXT =
+  'La IA abrió la heladera de la realidad y encontró un'

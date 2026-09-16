@@ -1,62 +1,69 @@
 import type { ChunkSize, RagChunk, RagDocument } from '@/domain/levels/rag/types'
 
-export const RAG_COMPANY = 'NovaForge Labs'
+export const RAG_COMPANY = 'ACME Airlines'
 
-export const RAG_QUESTION = '¿Cuál es la política de reembolsos de la empresa?'
+export const RAG_QUESTION =
+  'Hola, cancelé mi vuelo. ¿Me reembolsan el pasaje?'
 
 export const RAG_DOCUMENTS: RagDocument[] = [
   {
     id: 'doc-about',
-    title: 'Sobre NovaForge Labs',
-    body: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo y motores de simulación para arquitecturas modernas de IA.',
+    title: 'Sobre ACME Airlines',
+    body: 'ACME Airlines opera rutas regionales desde 1998. Atención al cliente 24/7 por chat y teléfono. Este bot responde con la base de conocimiento interna.',
   },
   {
-    id: 'doc-shipping',
-    title: 'Política de envíos',
-    body: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles. Los envíos internacionales pueden demorar hasta 20 días según aduana.',
+    id: 'doc-cancel',
+    title: 'Cancelaciones de vuelo',
+    body: 'Podés cancelar online hasta 24 h antes del despegue. La cancelación no implica reembolso automático: depende de la tarifa y de la política de reembolsos vigente.',
   },
   {
     id: 'doc-refund',
     title: 'Política de reembolsos',
-    body: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@novaforge.example con el ID del pedido. No hay reembolsos parciales después del día 30.',
+    body: 'ACME Airlines ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@acme-air.example con el ID del pedido. No hay reembolsos parciales después del día 30.',
+  },
+  {
+    id: 'doc-baggage',
+    title: 'Equipaje',
+    body: 'Equipaje de mano: 8 kg. Bodega: 23 kg en tarifas estándar. Excesos se cobran en mostrador. Objetos prohibidos: baterías sueltas y líquidos >100 ml en cabina.',
+  },
+  {
+    id: 'doc-promo-2019',
+    title: 'Promo verano 2019 (archivada)',
+    body: 'PROMO HISTÓRICA 2019 — ya no vigente: reembolso instantáneo sin preguntas en tarifas Flash. No usar para respuestas actuales. Solo archivo de marketing.',
   },
   {
     id: 'doc-support',
     title: 'FAQ de soporte',
-    body: 'Para problemas técnicos abrí un ticket en la Forge Console. El tiempo de respuesta suele ser menor a 24 horas en días hábiles. Los resets de contraseña se manejan automáticamente desde la pantalla de login.',
-  },
-  {
-    id: 'doc-careers',
-    title: 'Empleos',
-    body: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate. Remoto-friendly en la mayoría de los husos horarios.',
+    body: 'Para problemas técnicos del check-in abrí un ticket en la ACME Console. Respuesta típica < 24 h hábiles. Resets de contraseña desde el login.',
   },
 ]
 
 /**
  * Catálogos de chunks por tamaño.
- * Las similitudes están calibradas a mano para que el retrieval sea determinista y enseñable.
+ * Similitudes fijas → retrieval determinista.
+ * Promo 2019 = distractor léxico fuerte (dice “reembolso”).
  */
 export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
   50: [
     {
       id: 'c50-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs construye herramientas experimentales de IA para developers.',
+      text: 'ACME Airlines opera rutas regionales desde 1998.',
       similarity: 0.22,
       relevant: false,
     },
     {
       id: 'c50-2',
-      sourceDocId: 'doc-shipping',
-      text: 'Los productos digitales se entregan al instante por email.',
-      similarity: 0.31,
+      sourceDocId: 'doc-cancel',
+      text: 'Podés cancelar online hasta 24 h antes del despegue.',
+      similarity: 0.41,
       relevant: false,
     },
     {
       id: 'c50-3',
       sourceDocId: 'doc-refund',
-      text: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra',
-      similarity: 0.91,
+      text: 'ACME Airlines ofrece un reembolso completo dentro de los 30 días de la compra',
+      similarity: 0.88,
       relevant: true,
     },
     {
@@ -69,29 +76,29 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c50-5',
       sourceDocId: 'doc-refund',
-      text: 'Los pedidos de reembolso deben enviarse a billing@novaforge.example',
+      text: 'Los pedidos de reembolso deben enviarse a billing@acme-air.example',
       similarity: 0.72,
       relevant: true,
     },
     {
       id: 'c50-6',
-      sourceDocId: 'doc-support',
-      text: 'Para problemas técnicos abrí un ticket en la Forge Console.',
-      similarity: 0.27,
+      sourceDocId: 'doc-promo-2019',
+      text: 'PROMO 2019: reembolso instantáneo sin preguntas en tarifas Flash.',
+      similarity: 0.93,
       relevant: false,
     },
     {
       id: 'c50-7',
-      sourceDocId: 'doc-careers',
-      text: 'Contratamos builders curiosos en la mayoría de los husos horarios.',
-      similarity: 0.11,
+      sourceDocId: 'doc-baggage',
+      text: 'Equipaje de mano: 8 kg. Bodega: 23 kg en tarifas estándar.',
+      similarity: 0.19,
       relevant: false,
     },
     {
       id: 'c50-8',
-      sourceDocId: 'doc-shipping',
-      text: 'El merch físico se envía en 5 días hábiles.',
-      similarity: 0.29,
+      sourceDocId: 'doc-support',
+      text: 'Para problemas técnicos del check-in abrí un ticket en la ACME Console.',
+      similarity: 0.27,
       relevant: false,
     },
   ],
@@ -99,21 +106,21 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c100-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo.',
+      text: 'ACME Airlines opera rutas regionales desde 1998. Atención al cliente 24/7 por chat y teléfono.',
       similarity: 0.24,
       relevant: false,
     },
     {
       id: 'c100-2',
-      sourceDocId: 'doc-shipping',
-      text: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles.',
-      similarity: 0.33,
+      sourceDocId: 'doc-cancel',
+      text: 'Podés cancelar online hasta 24 h antes del despegue. La cancelación no implica reembolso automático.',
+      similarity: 0.46,
       relevant: false,
     },
     {
       id: 'c100-3',
       sourceDocId: 'doc-refund',
-      text: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@novaforge.example con el ID del pedido.',
+      text: 'ACME Airlines ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@acme-air.example con el ID del pedido.',
       similarity: 0.94,
       relevant: true,
     },
@@ -126,16 +133,16 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     },
     {
       id: 'c100-5',
-      sourceDocId: 'doc-support',
-      text: 'Para problemas técnicos abrí un ticket en la Forge Console. El tiempo de respuesta suele ser menor a 24 horas en días hábiles.',
-      similarity: 0.28,
+      sourceDocId: 'doc-promo-2019',
+      text: 'PROMO HISTÓRICA 2019 — ya no vigente: reembolso instantáneo sin preguntas en tarifas Flash. No usar para respuestas actuales.',
+      similarity: 0.82,
       relevant: false,
     },
     {
       id: 'c100-6',
-      sourceDocId: 'doc-careers',
-      text: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate.',
-      similarity: 0.14,
+      sourceDocId: 'doc-baggage',
+      text: 'Equipaje de mano: 8 kg. Bodega: 23 kg en tarifas estándar. Excesos se cobran en mostrador.',
+      similarity: 0.2,
       relevant: false,
     },
   ],
@@ -143,36 +150,36 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c200-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo y motores de simulación para arquitecturas modernas de IA.',
+      text: 'ACME Airlines opera rutas regionales desde 1998. Atención al cliente 24/7 por chat y teléfono. Este bot responde con la base de conocimiento interna.',
       similarity: 0.26,
       relevant: false,
     },
     {
       id: 'c200-2',
-      sourceDocId: 'doc-shipping',
-      text: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles. Los envíos internacionales pueden demorar hasta 20 días según aduana.',
-      similarity: 0.35,
+      sourceDocId: 'doc-cancel',
+      text: 'Podés cancelar online hasta 24 h antes del despegue. La cancelación no implica reembolso automático: depende de la tarifa y de la política de reembolsos vigente.',
+      similarity: 0.48,
       relevant: false,
     },
     {
       id: 'c200-3',
       sourceDocId: 'doc-refund',
-      text: 'NovaForge Labs ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@novaforge.example con el ID del pedido. No hay reembolsos parciales después del día 30.',
+      text: 'ACME Airlines ofrece un reembolso completo dentro de los 30 días de la compra si el producto no fue muy usado. Los pedidos de reembolso deben enviarse a billing@acme-air.example con el ID del pedido. No hay reembolsos parciales después del día 30.',
       similarity: 0.96,
       relevant: true,
     },
     {
       id: 'c200-4',
-      sourceDocId: 'doc-support',
-      text: 'Para problemas técnicos abrí un ticket en la Forge Console. El tiempo de respuesta suele ser menor a 24 horas en días hábiles. Los resets de contraseña se manejan automáticamente desde la pantalla de login.',
-      similarity: 0.3,
+      sourceDocId: 'doc-promo-2019',
+      text: 'PROMO HISTÓRICA 2019 — ya no vigente: reembolso instantáneo sin preguntas en tarifas Flash. No usar para respuestas actuales. Solo archivo de marketing.',
+      similarity: 0.79,
       relevant: false,
     },
     {
       id: 'c200-5',
-      sourceDocId: 'doc-careers',
-      text: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate. Remoto-friendly en la mayoría de los husos horarios.',
-      similarity: 0.15,
+      sourceDocId: 'doc-baggage',
+      text: 'Equipaje de mano: 8 kg. Bodega: 23 kg en tarifas estándar. Excesos se cobran en mostrador. Objetos prohibidos: baterías sueltas y líquidos >100 ml en cabina.',
+      similarity: 0.21,
       relevant: false,
     },
   ],
@@ -180,29 +187,29 @@ export const RAG_CHUNKS_BY_SIZE: Record<ChunkSize, RagChunk[]> = {
     {
       id: 'c400-1',
       sourceDocId: 'doc-about',
-      text: 'NovaForge Labs construye herramientas experimentales de IA para developers. Fundada en 2021, el equipo se enfoca en sistemas de aprendizaje interactivo y motores de simulación. Este chunk sobredimensionado diluye la calidad del retrieval con texto corporativo extra.',
+      text: 'ACME Airlines opera rutas regionales desde 1998. Atención al cliente 24/7. Chunk enorme con ruido corporativo que diluye el retrieval.',
       similarity: 0.41,
       relevant: false,
     },
     {
       id: 'c400-2',
-      sourceDocId: 'doc-shipping',
-      text: 'Los productos digitales se entregan al instante por email. El merch físico se envía en 5 días hábiles. Los envíos internacionales pueden demorar hasta 20 días. Notas de depósito y códigos de courier también viven acá.',
-      similarity: 0.44,
+      sourceDocId: 'doc-promo-2019',
+      text: 'PROMO 2019 archivada: reembolso instantáneo sin preguntas. Mezclado con cancelaciones, equipaje y FAQ. El modelo inventa con cara de seguro si solo ve esto.',
+      similarity: 0.66,
       relevant: false,
     },
     {
       id: 'c400-3',
       sourceDocId: 'doc-mixed',
-      text: 'FAQ de soporte mezclado con pistas de reembolso: abrí tickets en Forge Console. En algún lado: reembolso completo dentro de los 30 días… pero enterrado bajo texto de empleos, ruido de envíos e instrucciones de reset que confunden al modelo.',
+      text: 'Soporte + pistas de reembolso enterradas: abrí tickets en ACME Console. En algún lado: reembolso completo dentro de los 30 días… bajo ruido de promo 2019 y equipaje.',
       similarity: 0.58,
       relevant: false,
     },
     {
       id: 'c400-4',
-      sourceDocId: 'doc-careers',
-      text: 'Contratamos builders curiosos. Roles: simulation engineer, education designer y developer advocate. Remoto-friendly. Resumen de beneficios y extractos de culture deck.',
-      similarity: 0.21,
+      sourceDocId: 'doc-baggage',
+      text: 'Equipaje de mano 8 kg, bodega 23 kg, excesos en mostrador. Beneficios y culture deck de ACME mezclados al pedazo.',
+      similarity: 0.24,
       relevant: false,
     },
   ],
@@ -217,3 +224,12 @@ export const RAG_INITIAL_CONFIG = {
   topK: 1 as const,
   threshold: 0.7,
 }
+
+/** Nightmare: varios fallos a la vez */
+export const RAG_NIGHTMARE_CONFIG = {
+  chunkSize: 400 as ChunkSize,
+  topK: 1 as const,
+  threshold: 0.85,
+}
+
+export const RAG_NIGHTMARE_MS = 60_000

@@ -1,16 +1,24 @@
-import { useEffect, useReducer, useRef } from 'react'
-import { LLM_STEPS, LLM_TARGET_SEQUENCE } from '@/data/llm'
+import { useEffect, useMemo, useReducer, useRef } from 'react'
+import { LLM_CHAOS_CONTEXT } from '@/data/llm'
 import {
   createInitialLlmState,
   evaluateLlm,
+  getActiveOptions,
   getCurrentStep,
   reduceLlmState,
 } from '@/domain/levels/llm/evaluate'
+import {
+  buildChallengeCode,
+  formatShareText,
+} from '@/domain/shareScore'
 import { useProgress } from '@/context/ProgressContext'
 import { LevelLayout } from '@/components/layout/LevelLayout'
 import { ChallengePanel } from '@/components/ui/ChallengePanel'
 import { FeedbackPanel } from '@/components/ui/FeedbackPanel'
+import { MissionPanel } from '@/components/ui/MissionPanel'
+import { ParameterControl } from '@/components/ui/ParameterControl'
 import { ProbabilityBar } from '@/components/ui/ProbabilityBar'
+import { ShareCard } from '@/components/ui/ShareCard'
 import { SuccessState } from '@/components/ui/SuccessState'
 import { Token } from '@/components/ui/Token'
 import { t } from '@/i18n'
@@ -41,21 +49,48 @@ export function Level1LLMPage() {
   }, [state.completed, state.attempts, completeLevel, state])
 
   const step = getCurrentStep(state)
+  const options = getActiveOptions(state)
   const evaluation = evaluateLlm(state)
   const revealing = state.phase === 'reveal' && !state.completed
-  const isLastReveal =
-    revealing &&
-    state.lastCorrect === true &&
-    state.stepIndex >= LLM_STEPS.length - 1
+  const showTemp =
+    state.predictCompleted || state.mode === 'chaos' || state.stepIndex >= 2
 
-  let displayText = ''
-  if (state.completed) {
-    displayText = LLM_TARGET_SEQUENCE
-  } else if (revealing && state.lastCorrect && step) {
-    displayText = `${step.context} ${state.chosenTokens[state.chosenTokens.length - 1] ?? ''}`.trim()
-  } else {
-    displayText = step?.context ?? ''
-  }
+  const contextText =
+    state.mode === 'chaos' ? LLM_CHAOS_CONTEXT : (step?.context ?? '')
+
+  const elapsedMs = Math.round(
+    performance.now() - (startedAtRef.current ?? performance.now()),
+  )
+
+  const share = useMemo(() => {
+    if (!state.completed) return null
+    const challengeCode = buildChallengeCode('llm', {
+      score: state.score,
+      attempts: state.attempts,
+      streak: state.bestStreak,
+      chaos: state.chaosScore,
+      temp: state.temperature,
+    })
+    const metrics = [
+      { label: t('common.attempts'), value: String(state.attempts) },
+      { label: t('levels.llm.streakLabel'), value: String(state.bestStreak) },
+      {
+        label: t('levels.llm.chaosScoreLabel'),
+        value: String(state.chaosScore),
+      },
+      {
+        label: t('levels.llm.tempLabel'),
+        value: state.temperature.toFixed(1),
+      },
+    ]
+    const shareText = formatShareText({
+      levelLabel: t('levels.llm.subtitle'),
+      challengeCode,
+      score: state.score,
+      lines: metrics.map((metric) => `${metric.label}: ${metric.value}`),
+    })
+    return { challengeCode, metrics, shareText, score: state.score }
+  }, [state])
 
   const tone =
     evaluation.status === 'success'
@@ -70,7 +105,6 @@ export function Level1LLMPage() {
     <LevelLayout
       kicker={t('levels.llm.title')}
       title={t('levels.llm.subtitle')}
-      objective={t('levels.llm.objective')}
       attempts={state.attempts}
       onReset={() => {
         startedAtRef.current = performance.now()
@@ -84,27 +118,62 @@ export function Level1LLMPage() {
         <span className="badge">
           {t('levels.llm.streakLabel')}: {state.streak}
         </span>
+        {state.mode === 'chaos' ? (
+          <span className="badge">
+            {t('levels.llm.chaosScoreLabel')}: {state.chaosScore}
+          </span>
+        ) : null}
       </div>
+
+      <MissionPanel
+        mission={
+          state.mode === 'chaos'
+            ? t('levels.llm.chaosMission')
+            : t('levels.llm.mission')
+        }
+      />
 
       <ChallengePanel>
         <div className="panel stack">
           <h2>{t('levels.llm.contextLabel')}</h2>
           <div className="context-box" aria-live="polite">
-            {displayText}
-            {!state.completed && !(revealing && state.lastCorrect) ? (
-              <>
-                {' '}
-                <span
-                  className="token-slot"
-                  aria-label={t('levels.llm.nextTokenSlot')}
-                >
-                  {t('levels.llm.nextTokenSlot')}
-                </span>
-              </>
+            {contextText}{' '}
+            {!state.completed ? (
+              <span className="token-slot">{t('levels.llm.nextTokenSlot')}</span>
             ) : null}
           </div>
 
-          {!state.completed && step ? (
+          {showTemp ? (
+            <ParameterControl
+              id="temperature"
+              label={t('levels.llm.tempLabel')}
+              valueLabel={state.temperature.toFixed(1)}
+            >
+              <div className="row" style={{ width: '100%' }}>
+                <span className="note">{t('levels.llm.tempLow')}</span>
+                <input
+                  id="temperature"
+                  type="range"
+                  min={0.1}
+                  max={1}
+                  step={0.1}
+                  value={state.temperature}
+                  disabled={state.completed}
+                  onChange={(e) =>
+                    dispatch({
+                      type: 'SET_TEMPERATURE',
+                      temperature: Number(e.target.value),
+                    })
+                  }
+                  style={{ flex: 1 }}
+                />
+                <span className="note">{t('levels.llm.tempHigh')}</span>
+              </div>
+            </ParameterControl>
+          ) : null}
+
+          {!state.completed &&
+          !(state.predictCompleted && state.mode === 'predict') ? (
             <>
               <h3>{t('levels.llm.optionsLabel')}</h3>
               <p className="note">
@@ -113,13 +182,18 @@ export function Level1LLMPage() {
                   : t('levels.llm.pickHint')}
               </p>
               <div className="stack">
-                {step.options.map((option) => {
+                {options.map((option) => {
                   const selected = state.lastChoiceId === option.id
-                  const isTop = option.id === step.correctOptionId
+                  const isTop =
+                    revealing &&
+                    option.id ===
+                      [...options].sort(
+                        (a, b) => b.probability - a.probability,
+                      )[0]?.id
                   return (
                     <div
                       key={option.id}
-                      className={`row token-row ${revealing && isTop ? 'token-row--top' : ''}`}
+                      className={`row token-row ${isTop ? 'token-row--top' : ''}`}
                     >
                       <Token
                         text={option.text}
@@ -133,7 +207,11 @@ export function Level1LLMPage() {
                                 : null
                             : null
                         }
-                        disabled={revealing && state.lastCorrect === true}
+                        disabled={
+                          revealing &&
+                          state.mode === 'predict' &&
+                          state.lastCorrect === true
+                        }
                         onClick={() =>
                           dispatch({
                             type: 'SELECT_TOKEN',
@@ -155,19 +233,50 @@ export function Level1LLMPage() {
               </div>
 
               {revealing ? (
-                <button
-                  type="button"
-                  className="btn btn--primary"
-                  onClick={() => dispatch({ type: 'CONTINUE' })}
-                >
-                  {state.lastCorrect === false
-                    ? t('levels.llm.retry')
-                    : isLastReveal
-                      ? t('levels.llm.finish')
-                      : t('levels.llm.continue')}
-                </button>
+                <div className="row">
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    onClick={() => dispatch({ type: 'CONTINUE' })}
+                  >
+                    {state.lastCorrect === false
+                      ? t('levels.llm.retry')
+                      : state.mode === 'chaos'
+                        ? t('levels.llm.chaosAgain')
+                        : t('levels.llm.continue')}
+                  </button>
+                </div>
               ) : null}
             </>
+          ) : null}
+
+          {state.predictCompleted && state.mode === 'predict' && !state.completed ? (
+            <div className="row">
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => dispatch({ type: 'ENTER_CHAOS' })}
+              >
+                {t('levels.llm.enterChaos')}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => dispatch({ type: 'FINISH_PREDICT' })}
+              >
+                {t('levels.llm.skipChaos')}
+              </button>
+            </div>
+          ) : null}
+
+          {state.mode === 'chaos' && !state.completed ? (
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => dispatch({ type: 'FINISH_CHAOS' })}
+            >
+              {t('levels.llm.finishChaos')}
+            </button>
           ) : null}
         </div>
 
@@ -178,11 +287,25 @@ export function Level1LLMPage() {
             tone={tone}
           />
 
-          {state.completed ? (
-            <SuccessState
-              title={t('common.explanation')}
-              explanation={t('levels.llm.explanation')}
-            />
+          {state.completed && share ? (
+            <>
+              <SuccessState
+                title={t('common.explanation')}
+                explanation={t('levels.llm.explanation')}
+              />
+              <ShareCard
+                challengeCode={share.challengeCode}
+                score={share.score}
+                metrics={[
+                  ...share.metrics,
+                  {
+                    label: t('share.time'),
+                    value: `${(elapsedMs / 1000).toFixed(1)}s`,
+                  },
+                ]}
+                shareText={share.shareText}
+              />
+            </>
           ) : null}
         </div>
       </ChallengePanel>

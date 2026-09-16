@@ -4,7 +4,6 @@ import { t } from '@/i18n'
 type LevelLayoutProps = {
   kicker: string
   title: string
-  objective: string
   attempts: number
   onReset: () => void
   children: React.ReactNode
@@ -13,7 +12,6 @@ type LevelLayoutProps = {
 export function LevelLayout({
   kicker,
   title,
-  objective,
   attempts,
   onReset,
   children,
@@ -24,10 +22,6 @@ export function LevelLayout({
         <div>
           <p className="level-kicker">{kicker}</p>
           <h1>{title}</h1>
-          <p className="muted" style={{ margin: '0.5rem 0 0', maxWidth: '40rem' }}>
-            <strong>{t('common.objective')}: </strong>
-            {objective}
-          </p>
         </div>
         <div className="row">
           <span

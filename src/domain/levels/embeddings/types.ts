@@ -7,6 +7,8 @@ export type EmbeddingDocument = {
   label: string
   position: Vec2
   cluster: 'target' | 'near_miss' | 'far'
+  /** Tramposo léxico: palabras relacionadas, significado distinto */
+  trap?: boolean
 }
 
 export type EmbeddingQuery = {

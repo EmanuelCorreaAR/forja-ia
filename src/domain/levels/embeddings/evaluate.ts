@@ -3,6 +3,7 @@ import {
   EMBEDDING_QUERY,
   EMBEDDING_TARGET_DOC_IDS,
   EMBEDDING_TOP_K,
+  EMBEDDING_TRAP_DOC_ID,
 } from '@/data/embeddings'
 import type { EvaluationResult } from '@/domain/types'
 import {
@@ -13,7 +14,7 @@ import {
 import type { EmbeddingsAction, EmbeddingsChallengeState } from './types'
 
 const PERFECT_SCORE = 100
-const ATTEMPT_PENALTY = 18
+const ATTEMPT_PENALTY = 15
 
 export function createInitialEmbeddingsState(
   startedAt = 0,
@@ -56,6 +57,22 @@ export function getTargetDocIds(): string[] {
     .map((s) => s.doc.id)
 }
 
+export function getTrapDocId(): string {
+  return (
+    EMBEDDING_DOCUMENTS.find((doc) => doc.trap)?.id ?? EMBEDDING_TRAP_DOC_ID
+  )
+}
+
+export function averageSelectedSimilarity(selectedDocIds: string[]): number {
+  const scores = getDocumentScores()
+  if (selectedDocIds.length === 0) return 0
+  const sum = selectedDocIds.reduce((acc, id) => {
+    const hit = scores.find((item) => item.doc.id === id)
+    return acc + (hit?.similarity ?? 0)
+  }, 0)
+  return roundScore(sum / selectedDocIds.length, 3)
+}
+
 export function reduceEmbeddingsState(
   state: EmbeddingsChallengeState,
   action: EmbeddingsAction,
@@ -81,7 +98,6 @@ export function reduceEmbeddingsState(
       if (exists) {
         selectedDocIds = state.selectedDocIds.filter((id) => id !== action.docId)
       } else if (state.selectedDocIds.length >= EMBEDDING_TOP_K) {
-        // Máximo top-K seleccionados: reemplaza el más viejo
         selectedDocIds = [...state.selectedDocIds.slice(1), action.docId]
       } else {
         selectedDocIds = [...state.selectedDocIds, action.docId]
@@ -98,7 +114,6 @@ export function reduceEmbeddingsState(
       if (state.selectedDocIds.length !== EMBEDDING_TOP_K) return state
 
       const target = new Set(getTargetDocIds())
-      // Sanity: data targets should match computed top-K
       void EMBEDDING_TARGET_DOC_IDS
       const selected = new Set(state.selectedDocIds)
       const passed =
@@ -106,8 +121,14 @@ export function reduceEmbeddingsState(
         [...target].every((id) => selected.has(id))
 
       const attempts = passed ? state.attempts : state.attempts + 1
+      const avgSim = averageSelectedSimilarity(state.selectedDocIds)
       const score = passed
-        ? Math.max(PERFECT_SCORE - state.attempts * ATTEMPT_PENALTY, 40)
+        ? Math.max(
+            PERFECT_SCORE -
+              state.attempts * ATTEMPT_PENALTY +
+              Math.round((avgSim - 0.9) * 50),
+            40,
+          )
         : state.score
 
       return {
@@ -128,17 +149,26 @@ export function reduceEmbeddingsState(
 export function evaluateEmbeddings(
   state: EmbeddingsChallengeState,
 ): EvaluationResult {
+  const avgSim = averageSelectedSimilarity(state.selectedDocIds)
+
   if (state.completed) {
     return {
       status: 'success',
       titleKey: 'levels.embeddings.feedback.successTitle',
       messageKey: 'levels.embeddings.feedback.successMessage',
-      messageParams: { score: state.score, topK: EMBEDDING_TOP_K },
+      messageParams: {
+        score: state.score,
+        topK: EMBEDDING_TOP_K,
+        avgSim,
+      },
       metrics: {
         attempts: state.attempts,
         elapsedMs: 0,
         score: state.score,
-        configSnapshot: { selectedDocIds: state.selectedDocIds },
+        configSnapshot: {
+          selectedDocIds: state.selectedDocIds,
+          avgSimilarity: avgSim,
+        },
       },
     }
   }
@@ -147,6 +177,17 @@ export function evaluateEmbeddings(
     const target = new Set(getTargetDocIds())
     const selected = new Set(state.selectedDocIds)
     const hits = [...selected].filter((id) => target.has(id)).length
+    const trapId = getTrapDocId()
+    const pickedTrap = selected.has(trapId)
+
+    if (pickedTrap) {
+      return {
+        status: 'failed',
+        titleKey: 'levels.embeddings.feedback.trapTitle',
+        messageKey: 'levels.embeddings.feedback.trapMessage',
+        messageParams: { topK: EMBEDDING_TOP_K },
+      }
+    }
 
     if (hits === 0) {
       return {

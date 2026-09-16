@@ -1,10 +1,12 @@
 type VectorPointProps = {
   x: number
   y: number
-  label: string
+  label?: string
   kind?: 'doc' | 'query'
   selected?: boolean
   near?: boolean
+  trap?: boolean
+  anonymous?: boolean
   onClick?: () => void
   disabled?: boolean
 }
@@ -12,10 +14,12 @@ type VectorPointProps = {
 export function VectorPoint({
   x,
   y,
-  label,
+  label = '',
   kind = 'doc',
   selected,
   near,
+  trap,
+  anonymous,
   onClick,
   disabled,
 }: VectorPointProps) {
@@ -23,10 +27,19 @@ export function VectorPoint({
     'vector-point',
     kind === 'query' ? 'is-query' : '',
     selected ? 'is-selected' : '',
+    anonymous ? 'is-anonymous' : '',
     near ? 'is-near' : 'is-far',
+    trap ? 'is-trap' : '',
   ]
     .filter(Boolean)
     .join(' ')
+
+  const accessibleName =
+    kind === 'query'
+      ? label || 'query'
+      : anonymous
+        ? 'documento sin etiquetar'
+        : label
 
   return (
     <button
@@ -35,12 +48,16 @@ export function VectorPoint({
       style={{ left: `${x * 100}%`, top: `${(1 - y) * 100}%` }}
       onClick={onClick}
       disabled={disabled || kind === 'query'}
-      aria-label={label}
-      aria-pressed={selected}
-      title={label}
+      aria-label={accessibleName}
+      aria-pressed={kind === 'query' ? undefined : selected}
+      title={anonymous ? undefined : label || undefined}
     >
-      <span className="vector-point__dot" />
-      <span className="vector-point__label">{label}</span>
+      <span className="vector-point__dot" aria-hidden="true" />
+      {!anonymous && label ? (
+        <span className="vector-point__label" aria-hidden="true">
+          {label}
+        </span>
+      ) : null}
     </button>
   )
 }
