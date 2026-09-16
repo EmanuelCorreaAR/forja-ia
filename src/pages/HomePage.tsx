@@ -44,7 +44,6 @@ export function HomePage() {
                 description={t(level.descriptionKey)}
                 status={status}
                 to={level.route}
-                cta={status === 'completed' ? t('home.completed') : t('home.start')}
               />
             )
           })}
@@ -65,7 +64,6 @@ export function HomePage() {
               description={t(level.descriptionKey)}
               status="locked"
               to={level.route}
-              cta={t('home.locked')}
             />
           ))}
         </div>

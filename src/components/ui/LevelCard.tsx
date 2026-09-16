@@ -8,7 +8,6 @@ type LevelCardProps = {
   status: 'locked' | 'available' | 'completed'
   to: string
   order: number
-  cta: string
 }
 
 const STATUS_LABEL: Record<LevelCardProps['status'], string> = {
@@ -24,7 +23,6 @@ export function LevelCard({
   status,
   to,
   order,
-  cta,
 }: LevelCardProps) {
   const locked = status === 'locked'
   const content = (
@@ -40,7 +38,7 @@ export function LevelCard({
       </div>
       <h3 className="level-card__title">{subtitle}</h3>
       <p className="level-card__desc">{description}</p>
-      <span className="mono muted">{locked ? title : cta}</span>
+      <span className="mono muted">{title}</span>
     </>
   )
 

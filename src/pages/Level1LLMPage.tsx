@@ -109,7 +109,7 @@ export function Level1LLMPage() {
 
   return (
     <LevelLayout
-      kicker={t('levels.llm.title')}
+      kicker={t('levels.llm.levelLabel')}
       title={t('levels.llm.subtitle')}
       attempts={state.attempts}
       onReset={() => {

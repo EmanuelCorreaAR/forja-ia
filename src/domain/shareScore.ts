@@ -32,7 +32,13 @@ export function buildChallengeCode(
     .join('|')
   const digest = hashString(`${levelId}|${canonical}`).toString(16).toUpperCase()
   const prefix =
-    levelId === 'llm' ? 'LLM' : levelId === 'embeddings' ? 'EMB' : 'RAG'
+    levelId === 'llm'
+      ? 'LLM'
+      : levelId === 'embeddings'
+        ? 'EMB'
+        : levelId === 'tools'
+          ? 'TLS'
+          : 'RAG'
   return `${prefix}-${digest.slice(0, 4)}`
 }
 

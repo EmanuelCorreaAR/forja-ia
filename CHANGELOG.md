@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0
+
+- Nivel 4 **Tools**: modo ACT (5 misiones) + NIGHTMARE opcional
+- ACT: construir tool call o NO TOOL; RETRY restaura el mundo de la misión
+- Misión memorable: unnecessary tool call (“¿Qué es RAG?”)
+- NIGHTMARE: reparar call con TOOL MISMATCH + INVALID ARGUMENT TYPE
+- Score: Tool selection, Argument accuracy, Unnecessary calls, Precision, Attempts, Time
+- Share codes `TLS-****`; unlock tras completar RAG
+
 ## 0.2.0
 
 - Rediseño jugable de los 3 niveles: decisión difícil, revelar, revancha y score compartible

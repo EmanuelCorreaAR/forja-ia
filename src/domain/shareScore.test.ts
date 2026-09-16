@@ -15,6 +15,9 @@ describe('shareScore', () => {
     const b = buildChallengeCode('rag', { attempts: 2, score: 90 })
     expect(a).toBe(b)
     expect(a.startsWith('RAG-')).toBe(true)
+    expect(buildChallengeCode('tools', { score: 1 }).startsWith('TLS-')).toBe(
+      true,
+    )
   })
 
   it('formats share text', () => {

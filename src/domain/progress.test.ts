@@ -29,6 +29,14 @@ describe('Progress unlock flow', () => {
     expect(getLevelStatus('rag', progress)).toBe('available')
   })
 
+  it('unlocks tools after rag', () => {
+    let progress = createDefaultProgress()
+    progress = unlockNextLevel(progress, 'llm')
+    progress = unlockNextLevel(progress, 'embeddings')
+    progress = unlockNextLevel(progress, 'rag')
+    expect(getLevelStatus('tools', progress)).toBe('available')
+  })
+
   it('keeps best score when improved', () => {
     let progress = createDefaultProgress()
     progress = recordBestResult(progress, 'llm', {

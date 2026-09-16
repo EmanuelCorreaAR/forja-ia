@@ -1,6 +1,6 @@
 /** Shared challenge domain types — UI-agnostic */
 
-export type ChallengeId = 'llm' | 'embeddings' | 'rag'
+export type ChallengeId = 'llm' | 'embeddings' | 'rag' | 'tools'
 
 export type LevelStatus = 'locked' | 'available' | 'completed'
 

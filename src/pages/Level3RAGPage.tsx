@@ -140,7 +140,7 @@ export function Level3RAGPage() {
 
   return (
     <LevelLayout
-      kicker={t('levels.rag.title')}
+      kicker={t('levels.rag.levelLabel')}
       title={t('levels.rag.subtitle')}
       attempts={state.attempts}
       onReset={() => {

@@ -43,8 +43,9 @@ export const es = {
   },
   levels: {
     llm: {
-      title: 'Nivel 1',
-      subtitle: 'LLM — ¿Podés pensar como el modelo?',
+      title: 'LLM',
+      levelLabel: 'Nivel 1',
+      subtitle: '¿Podés pensar como el modelo?',
       cardDescription: 'Adiviná el próximo token. El contexto lo cambia todo.',
       mission:
         'Elegí el próximo token a ciegas. Después mirás cómo el contexto mueve las probabilidades.',
@@ -104,8 +105,9 @@ export const es = {
       },
     },
     embeddings: {
-      title: 'Nivel 2',
-      subtitle: 'Embeddings — Encontrá el intruso',
+      title: 'Embeddings',
+      levelLabel: 'Nivel 2',
+      subtitle: 'Encontrá el intruso',
       cardDescription:
         'Retrieval semántico: elegí vecinos reales y esquivá el tramposo léxico.',
       mission:
@@ -149,8 +151,9 @@ export const es = {
       },
     },
     rag: {
-      title: 'Nivel 3',
-      subtitle: 'RAG — Tu IA está rota',
+      title: 'RAG',
+      levelLabel: 'Nivel 3',
+      subtitle: 'Tu IA está rota',
       cardDescription:
         'El bot de ACME Airlines inventa reembolsos. Arreglá el retrieval.',
       mission:
@@ -251,9 +254,116 @@ export const es = {
           'Lo arreglaste contrarreloj. Mismo truco: contexto bueno → respuesta buena. Ahora sí podés flexear el score.',
       },
     },
+    tools: {
+      title: 'Tools',
+      levelLabel: 'Nivel 4',
+      subtitle: 'Dar acciones al modelo',
+      cardDescription:
+        'Construí la tool call correcta o decidí que no hace falta ninguna.',
+      hook: 'El modelo sabe hablar. Ahora enseñale a hacer cosas.',
+      arc: 'GENERATE → FIND → RETRIEVE → ACT',
+      mission:
+        'Leé el pedido del usuario. Elegí una tool del catálogo (o NO TOOL), completá los args y ejecutá. Si te equivocás, RETRY vuelve el mundo a como estaba.',
+      nightmareMission:
+        'El modelo ya armó una tool call rota. Encontrá el mismatch y el tipo inválido; reparala y ejecutá.',
+      userLabel: 'Usuario',
+      catalogLabel: 'Catálogo',
+      builderLabel: 'Acción',
+      noTool: 'NO TOOL',
+      execute: 'Ejecutar',
+      retry: 'Reintentar',
+      nextMission: 'Siguiente misión',
+      finishAct: 'Cerrar ACT y ver score',
+      enterNightmare: 'Entrar a NIGHTMARE',
+      skipNightmare: 'Terminar acá',
+      nightmareBadge: 'NIGHTMARE',
+      missionProgress: 'Misión {{current}} / {{total}}',
+      argsLabel: 'Arguments',
+      brokenCallLabel: 'Tool call del modelo',
+      resultLabel: 'Resultado',
+      metrics: {
+        toolSelection: 'Tool selection',
+        argumentAccuracy: 'Argument accuracy',
+        unnecessaryCalls: 'Unnecessary calls',
+        precision: 'Precision',
+        attempts: 'Attempts',
+        time: 'Time',
+      },
+      catalog: {
+        get_order: 'Obtiene información de un pedido',
+        cancel_order: 'Cancela un pedido',
+        refund_order: 'Reembolsa un pedido',
+        change_address: 'Cambia la dirección de envío',
+        search_products: 'Busca productos en el catálogo',
+        get_weather: 'Consulta el clima de una ciudad',
+        send_email: 'Envía un email',
+      },
+      args: {
+        order_id: 'ID del pedido',
+        address: 'Nueva dirección',
+        query: 'Texto de búsqueda',
+        city: 'Ciudad',
+        to: 'Destinatario',
+        subject: 'Asunto',
+      },
+      missions: {
+        track_order: '¿Cuándo llega mi pedido #4821?',
+        cancel_order: 'Cancelá mi pedido #8392.',
+        change_address:
+          'Cambiá la dirección del pedido #4821 a Bv. San Juan 500, Córdoba.',
+        what_is_rag: '¿Qué es RAG?',
+        search_products: '¿Tenés auriculares inalámbricos?',
+      },
+      nightmare: {
+        userMessage: '¿Cuándo llega mi pedido #4821?',
+      },
+      explanation:
+        'Un modelo con tools no “hace” cosas solo: elige una acción y el runtime la ejecuta. Tener herramientas no obliga a usarlas — Precision > spam de calls.',
+      nightmareExplanation:
+        'Debugging de tool calling: mismatch de intención + tipos de args. Así se rompen los agentes en producción.',
+      feedback: {
+        idleTitle: 'Armá la acción',
+        idleMessage:
+          'Elegí una tool del catálogo o NO TOOL, completá los argumentos y pulsá Ejecutar.',
+        successTitle: 'SUCCESS',
+        successMessage: 'La acción correcta se ejecutó en el mundo simulado.',
+        noToolSuccessTitle: 'SUCCESS — NO TOOL',
+        noToolSuccessMessage:
+          'Respondés en texto. No hacía falta tocar ninguna herramienta.',
+        unnecessaryTitle: 'UNNECESSARY TOOL CALL',
+        unnecessaryMessage:
+          'El usuario pidió información que el modelo puede responder directo. Tener una herramienta disponible no significa que haya que usarla.',
+        needsToolTitle: 'Hacía falta una acción',
+        needsToolMessage:
+          'Acá el modelo no puede cumplir solo con texto. Elegí una tool del catálogo.',
+        wrongToolTitle: 'TOOL MISMATCH',
+        wrongToolMessage:
+          'Esa tool no matchea la intención del usuario. Revisá el catálogo.',
+        wrongArgsTitle: 'ARGUMENT ERROR',
+        wrongArgsMessage:
+          'La tool era razonable, pero los argumentos no. Ajustá IDs, nombres y valores.',
+        toolErrorTitle: 'TOOL ERROR',
+        missingArg: 'Falta el argumento requerido: {{arg}}',
+        orderNotFound: 'No existe el pedido #{{id}}',
+        actionExecutedTitle: 'ACTION EXECUTED',
+        actionExecutedMessage:
+          'La acción corrió… y cambió el mundo. No era lo que pedía el usuario. Usá RETRY para volver al estado inicial de la misión.',
+        toolMismatchTitle: 'TOOL MISMATCH',
+        toolMismatchMessage:
+          'refund_order no corresponde a lo que pidió el usuario.',
+        invalidTypeTitle: 'INVALID ARGUMENT TYPE',
+        invalidTypeMessage:
+          'order_id debe ser string (p. ej. "4821"), no number.',
+        nightmareDualTitle: 'TOOL MISMATCH + INVALID ARGUMENT TYPE',
+        nightmareDualMessage:
+          'Dos bugs a la vez: la tool no matchea la intención, y order_id tiene el tipo incorrecto.',
+        nightmareSuccessTitle: 'NIGHTMARE superado',
+        nightmareSuccessMessage:
+          'Reparaste la call: tool correcta + tipo string. Así se debuggea un agente.',
+      },
+    },
     future: {
       locked: 'Nivel futuro — todavía no implementado.',
-      tools: { title: 'Tools', subtitle: 'Dar acciones al modelo' },
       mcp: { title: 'MCP', subtitle: 'Conectar herramientas externas' },
       agents: { title: 'Agents', subtitle: 'Planificar y actuar en bucle' },
       context: { title: 'Context', subtitle: 'Qué entra en la ventana' },

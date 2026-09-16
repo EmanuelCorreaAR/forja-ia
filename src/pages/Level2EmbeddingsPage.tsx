@@ -103,7 +103,7 @@ export function Level2EmbeddingsPage() {
 
   return (
     <LevelLayout
-      kicker={t('levels.embeddings.title')}
+      kicker={t('levels.embeddings.levelLabel')}
       title={t('levels.embeddings.subtitle')}
       attempts={state.attempts}
       onReset={() => {

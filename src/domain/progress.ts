@@ -2,7 +2,7 @@ import type { LevelMeta, ProgressState } from '@/domain/types'
 
 export const PROGRESS_VERSION = 1
 
-export const IMPLEMENTED_LEVEL_IDS = ['llm', 'embeddings', 'rag'] as const
+export const IMPLEMENTED_LEVEL_IDS = ['llm', 'embeddings', 'rag', 'tools'] as const
 
 export const LEVELS: LevelMeta[] = [
   {
@@ -35,11 +35,11 @@ export const LEVELS: LevelMeta[] = [
   {
     id: 'tools',
     order: 4,
-    titleKey: 'levels.future.tools.title',
-    subtitleKey: 'levels.future.tools.subtitle',
-    descriptionKey: 'levels.future.locked',
+    titleKey: 'levels.tools.title',
+    subtitleKey: 'levels.tools.subtitle',
+    descriptionKey: 'levels.tools.cardDescription',
     route: '/level/tools',
-    implemented: false,
+    implemented: true,
   },
   {
     id: 'mcp',

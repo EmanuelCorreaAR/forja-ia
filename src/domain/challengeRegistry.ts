@@ -14,6 +14,7 @@ export const challengeRegistry: ChallengeRegistration[] = [
   { id: 'llm', route: '/level/llm', implemented: true },
   { id: 'embeddings', route: '/level/embeddings', implemented: true },
   { id: 'rag', route: '/level/rag', implemented: true },
+  { id: 'tools', route: '/level/tools', implemented: true },
 ]
 
 export function getChallengeRegistration(id: string) {

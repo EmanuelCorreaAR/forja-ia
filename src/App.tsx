@@ -4,6 +4,7 @@ import { HomePage } from '@/pages/HomePage'
 import { Level1LLMPage } from '@/pages/Level1LLMPage'
 import { Level2EmbeddingsPage } from '@/pages/Level2EmbeddingsPage'
 import { Level3RAGPage } from '@/pages/Level3RAGPage'
+import { Level4ToolsPage } from '@/pages/Level4ToolsPage'
 import { useProgress } from '@/context/ProgressContext'
 
 function GuardedLevel({
@@ -45,6 +46,14 @@ export default function App() {
           element={
             <GuardedLevel id="rag">
               <Level3RAGPage />
+            </GuardedLevel>
+          }
+        />
+        <Route
+          path="/level/tools"
+          element={
+            <GuardedLevel id="tools">
+              <Level4ToolsPage />
             </GuardedLevel>
           }
         />
